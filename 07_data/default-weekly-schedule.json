@@ -1,0 +1,116 @@
+{
+  "name": "default-weekly-schedule",
+  "version": 1,
+  "strategy": "Soul Land current focus, Golden Spatula morning retention, four evening lives per week",
+  "minimum_live_duration_minutes": 60,
+  "target_weekly_live_hours": 15,
+  "morning_target_days": 3,
+  "evening_target_days": 4,
+  "schedule": [
+    {
+      "day": "Monday",
+      "day_th": "จันทร์",
+      "morning": {
+        "time": "",
+        "game_id": "planning",
+        "label": "พัก / วางแผน"
+      },
+      "evening": {
+        "time": "",
+        "game_id": "planning",
+        "label": "พัก / เตรียมตาราง"
+      },
+      "notes": "ใช้เป็นวันตั้งระบบและดูงานประจำ"
+    },
+    {
+      "day": "Tuesday",
+      "day_th": "อังคาร",
+      "morning": {
+        "time": "07:00-09:00",
+        "game_id": "golden-spatula",
+        "label": "Golden Spatula"
+      },
+      "evening": {
+        "time": "19:00-21:00",
+        "game_id": "soul-land-awakening-world",
+        "label": "Soul Land: Awakening World"
+      },
+      "notes": "เริ่มสัปดาห์ด้วยเกมหลักช่วงนี้"
+    },
+    {
+      "day": "Wednesday",
+      "day_th": "พุธ",
+      "morning": {
+        "time": "07:00-09:00",
+        "game_id": "golden-spatula",
+        "label": "Golden Spatula"
+      },
+      "evening": {
+        "time": "19:00-21:00",
+        "game_id": "wild-rift",
+        "label": "LoL Wild Rift หรือ Soul Land"
+      },
+      "notes": "สลับเกมเพื่อไม่ให้ช่องจำเจ"
+    },
+    {
+      "day": "Thursday",
+      "day_th": "พฤหัสบดี",
+      "morning": {
+        "time": "07:00-09:00",
+        "game_id": "golden-spatula",
+        "label": "Golden Spatula"
+      },
+      "evening": {
+        "time": "",
+        "game_id": "clip-work",
+        "label": "พัก / ตัดคลิป / optional Soul Land"
+      },
+      "notes": "กันแรงไว้ปลายสัปดาห์"
+    },
+    {
+      "day": "Friday",
+      "day_th": "ศุกร์",
+      "morning": {
+        "time": "",
+        "game_id": "break",
+        "label": "พัก"
+      },
+      "evening": {
+        "time": "19:00-21:00",
+        "game_id": "soul-land-awakening-world",
+        "label": "Soul Land หรือ LoL Wild Rift แบบเบา"
+      },
+      "notes": "หลังไลฟ์เลือก clip candidate"
+    },
+    {
+      "day": "Saturday",
+      "day_th": "เสาร์",
+      "morning": {
+        "time": "",
+        "game_id": "clip-work",
+        "label": "พัก / ตัดคลิป"
+      },
+      "evening": {
+        "time": "19:00-23:00",
+        "game_id": "naraka-bladepoint",
+        "label": "Naraka: Bladepoint รอบยาว"
+      },
+      "notes": "เหมาะกับไลฟ์ 2-4 ชั่วโมง"
+    },
+    {
+      "day": "Sunday",
+      "day_th": "อาทิตย์",
+      "morning": {
+        "time": "",
+        "game_id": "weekly-review",
+        "label": "Weekly review / ตัดคลิป"
+      },
+      "evening": {
+        "time": "",
+        "game_id": "optional",
+        "label": "Optional Soul Land / พัก"
+      },
+      "notes": "ใช้สรุปผลและเตรียมสัปดาห์ถัดไป"
+    }
+  ]
+}

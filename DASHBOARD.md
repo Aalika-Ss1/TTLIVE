@@ -24,17 +24,23 @@
 
 ## สัปดาห์ปัจจุบัน
 
-- Week:
-- เป้าหมายหลัก:
-- เกม/หัวข้อหลัก:
-- Platform:
+- Week: default baseline
+- เป้าหมายหลัก: ทดลองตารางไลฟ์ที่ทำได้จริงและเก็บข้อมูลผลลัพธ์
+- เกม/หัวข้อหลัก: Soul Land เป็นหลัก, Golden Spatula เช้า, สลับ LoL Wild Rift / Naraka
+- Platform: TikTok
 
 ## ตารางไลฟ์
 
 | วัน | เวลา | หัวข้อ/เกม | สถานะ | เจ้าของงาน |
 | :---: | :---: | :--- | :---: | :--- |
-| จันทร์ | 20:00 น. | | Draft | |
-| พฤหัสบดี | 21:00 น. | | Draft | |
+| อังคาร | 07:00-09:00 | Golden Spatula | Baseline | User Lika |
+| อังคาร | 19:00-21:00 | Soul Land | Baseline | User Lika |
+| พุธ | 07:00-09:00 | Golden Spatula | Baseline | User Lika |
+| พุธ | 19:00-21:00 | LoL Wild Rift หรือ Soul Land | Baseline | User Lika |
+| พฤหัสบดี | 07:00-09:00 | Golden Spatula | Baseline | User Lika |
+| ศุกร์ | 19:00-21:00 | Soul Land หรือ LoL Wild Rift | Baseline | User Lika |
+| เสาร์ | 19:00-23:00 | Naraka: Bladepoint | Optional Long | User Lika |
+| อาทิตย์ | ยืดหยุ่น | Review / Clip / Optional Soul Land | Optional | User Lika |
 
 ## งานที่ต้องทำ
 

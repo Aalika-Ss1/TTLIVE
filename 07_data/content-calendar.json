@@ -1,16 +1,53 @@
 {
-  "current_week": "",
+  "current_week": "default",
   "default_live_days": [
     {
-      "day": "Monday",
-      "time": "20:00",
-      "format": "rank"
+      "day": "Tuesday",
+      "time": "07:00-09:00",
+      "game_id": "golden-spatula",
+      "format": "morning-retention"
+    },
+    {
+      "day": "Tuesday",
+      "time": "19:00-21:00",
+      "game_id": "soul-land-awakening-world",
+      "format": "current-focus"
+    },
+    {
+      "day": "Wednesday",
+      "time": "07:00-09:00",
+      "game_id": "golden-spatula",
+      "format": "morning-retention"
+    },
+    {
+      "day": "Wednesday",
+      "time": "19:00-21:00",
+      "game_id": "wild-rift",
+      "format": "community"
     },
     {
       "day": "Thursday",
-      "time": "21:00",
-      "format": "patch-review"
+      "time": "07:00-09:00",
+      "game_id": "golden-spatula",
+      "format": "morning-retention"
+    },
+    {
+      "day": "Friday",
+      "time": "19:00-21:00",
+      "game_id": "soul-land-awakening-world",
+      "format": "light-live"
+    },
+    {
+      "day": "Saturday",
+      "time": "19:00-23:00",
+      "game_id": "naraka-bladepoint",
+      "format": "long-session"
     }
   ],
-  "notes": []
+  "notes": [
+    "Soul Land เป็นเกมหลักช่วงนี้",
+    "Golden Spatula เช้า 3 วันเพื่อรักษาฐานคนดูเดิม",
+    "รอบเย็นตั้งต้น 4 วัน",
+    "ศุกร์ เสาร์ อาทิตย์ต้องมีเวลาสำหรับพัก ตัดคลิป หรือรีวิวผล"
+  ]
 }

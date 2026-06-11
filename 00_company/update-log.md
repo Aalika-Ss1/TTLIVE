@@ -91,3 +91,27 @@ Tournament OS is a separate subsystem under `projects/tournament-os/`. It is for
 - Confirm brand colors and font direction
 - Add actual logo/game assets
 - Create or mirror GitHub main issue when issue tooling/auth is available
+
+## Update: 2026-06-11 Default Weekly Schedule
+
+### Summary
+
+- Added baseline weekly streaming schedule
+- Set Soul Land as current focus
+- Set Golden Spatula as 3 morning slots for retention
+- Set 4 evening live targets with Soul Land, LoL Wild Rift, and Naraka
+- Reserved Friday-Sunday time for clip work, review, or rest
+
+### Changed Files
+
+- `03_live_operations/default-weekly-schedule-plan.md`
+- `03_live_operations/stream-schedule-system.md`
+- `07_data/default-weekly-schedule.json`
+- `07_data/content-calendar.json`
+- `DASHBOARD.md`
+
+### Next
+
+- Test this baseline for 2-4 weeks
+- Track live results in `09_reports/live-analytics/`
+- Adjust evening days based on energy and viewer response
