@@ -1,0 +1,30 @@
+{
+  "canvas": {
+    "width": 1080,
+    "height": 1080
+  },
+  "card": {
+    "x": 150,
+    "y": 150,
+    "width": 780,
+    "height": 780
+  },
+  "header": {
+    "height": 120
+  },
+  "columns": [
+    { "name": "day", "label": "วัน\n(Day)", "width": 135 },
+    { "name": "game", "label": "เกม\n(Game)", "width": 300 },
+    { "name": "morning", "label": "เช้า\n(Morning)", "width": 170 },
+    { "name": "evening", "label": "เย็น\n(Evening)", "width": 175 }
+  ],
+  "day_colors": {
+    "Mon": "#24D9D0",
+    "Tue": "#FFB3C1",
+    "Wed": "#9BE7A8",
+    "Thu": "#FFA640",
+    "Fri": "#FFE033",
+    "Sat": "#8FD3FF",
+    "Sun": "#D7A7FF"
+  }
+}

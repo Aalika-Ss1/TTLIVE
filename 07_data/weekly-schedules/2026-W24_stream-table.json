@@ -1,0 +1,73 @@
+{
+  "week": "2026-W24",
+  "date_range": "15-21 มิถุนายน 2026",
+  "title": "ตาราง Live ประจำสัปดาห์",
+  "theme": "Golden Spatula / LoL Wild Rift",
+  "format": "weekly_table",
+  "items": [
+    {
+      "day_th": "จันทร์",
+      "day_en": "Mon",
+      "game_id": "golden-spatula",
+      "game_label": "Golden Spatula\nSet 17 New",
+      "morning": "07.00 - 09.30",
+      "evening": "-",
+      "note": "เปิดสัปดาห์"
+    },
+    {
+      "day_th": "อังคาร",
+      "day_en": "Tue",
+      "game_id": "golden-spatula",
+      "game_label": "Golden Spatula\nSet 16.8",
+      "morning": "07.00 - 09.30",
+      "evening": "19.30 - 22.00",
+      "note": "เล่นยาว"
+    },
+    {
+      "day_th": "พุธ",
+      "day_en": "Wed",
+      "game_id": "wild-rift",
+      "game_label": "LoL Wild Rift",
+      "morning": "07.00 - 09.30",
+      "evening": "19.30 - 21.00",
+      "note": "ไต่แรงค์"
+    },
+    {
+      "day_th": "พฤหัสบดี",
+      "day_en": "Thu",
+      "game_id": "golden-spatula",
+      "game_label": "Golden Spatula\nSet 17 New",
+      "morning": "07.00 - 09.30",
+      "evening": "-",
+      "note": "ลดเวลาช่วงเย็น"
+    },
+    {
+      "day_th": "ศุกร์",
+      "day_en": "Fri",
+      "game_id": "break",
+      "game_label": "หยุด",
+      "morning": "-",
+      "evening": "-",
+      "note": "พัก / เตรียมคลิป"
+    },
+    {
+      "day_th": "เสาร์",
+      "day_en": "Sat",
+      "game_id": "wild-rift",
+      "game_label": "LoL Wild Rift",
+      "morning": "07.00 - 09.00\n09.00 - 11.00",
+      "evening": "-",
+      "note": "แบ่ง 2 รอบสั้น"
+    },
+    {
+      "day_th": "อาทิตย์",
+      "day_en": "Sun",
+      "game_id": "follow",
+      "game_label": "รอติดตาม",
+      "morning": "-",
+      "evening": "-",
+      "note": "ประกาศตามสถานการณ์"
+    }
+  ],
+  "output": "08_outputs/schedules/2026-W24_stream-table.png"
+}

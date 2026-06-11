@@ -1,0 +1,28 @@
+{
+  "week": "2026-W24",
+  "date_range": "15-21 มิถุนายน 2026",
+  "theme": "เริ่มระบบ TTLIVE",
+  "platforms": ["TikTok", "Facebook", "Discord"],
+  "items": [
+    {
+      "day": "จันทร์",
+      "date": "2026-06-15",
+      "time": "20:00 น.",
+      "game_id": "wild-rift",
+      "topic": "Wild Rift",
+      "note": "ไต่แรงค์ยาวๆ",
+      "status": "planned"
+    },
+    {
+      "day": "พฤหัสบดี",
+      "date": "2026-06-18",
+      "time": "21:00 น.",
+      "game_id": "golden-spatula",
+      "topic": "Golden Spatula",
+      "note": "ลองทีมและคุยแพตช์ใหม่",
+      "status": "planned"
+    }
+  ],
+  "caption": "สัปดาห์นี้ TTLIVE เริ่มจัดตารางแบบจริงจัง เจอกันตามเวลานี้ได้เลย",
+  "hashtags": ["#TTLIVE", "#TikTokLive", "#GamingLive"]
+}

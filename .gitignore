@@ -1,0 +1,30 @@
+# Secrets
+.env
+.env.*
+*.pem
+*.key
+secrets/
+
+# Large/raw media
+*.mp4
+*.mov
+*.mkv
+*.avi
+*.wav
+*.psd
+*.aep
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# System
+Thumbs.db
+.DS_Store
+
+# Generated temp
+tmp/
+temp/
+*.tmp

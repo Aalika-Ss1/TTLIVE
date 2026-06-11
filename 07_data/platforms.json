@@ -1,0 +1,20 @@
+[
+  {
+    "id": "tiktok",
+    "name": "TikTok",
+    "content_types": ["live", "short", "caption"],
+    "notes": "เน้นข้อความสั้น อ่านเร็ว และ hook ชัด"
+  },
+  {
+    "id": "facebook",
+    "name": "Facebook",
+    "content_types": ["post", "schedule-image", "clip"],
+    "notes": "เหมาะกับประกาศตารางและ recap"
+  },
+  {
+    "id": "discord",
+    "name": "Discord",
+    "content_types": ["announcement", "event", "community-post"],
+    "notes": "ใช้แจ้งคนดูประจำและกิจกรรมเล่นกับคนดู"
+  }
+]

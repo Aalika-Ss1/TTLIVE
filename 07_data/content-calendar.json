@@ -1,0 +1,16 @@
+{
+  "current_week": "",
+  "default_live_days": [
+    {
+      "day": "Monday",
+      "time": "20:00",
+      "format": "rank"
+    },
+    {
+      "day": "Thursday",
+      "time": "21:00",
+      "format": "patch-review"
+    }
+  ],
+  "notes": []
+}

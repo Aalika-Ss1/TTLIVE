@@ -1,0 +1,38 @@
+[
+  {
+    "id": "wild-rift",
+    "name": "Wild Rift",
+    "category": "moba",
+    "default_time": "20:00",
+    "color": "#00E5FF",
+    "icon": "04_assets/game-icons/wild-rift.png",
+    "notes": "ไต่แรงค์ เล่นกับคนดู รีวิวแพตช์"
+  },
+  {
+    "id": "golden-spatula",
+    "name": "Golden Spatula",
+    "category": "auto-battler",
+    "default_time": "21:00",
+    "color": "#FFC857",
+    "icon": "04_assets/game-icons/golden-spatula.png",
+    "notes": "จัดทีม ทดลองแพตช์ เล่นแรงค์"
+  },
+  {
+    "id": "break",
+    "name": "หยุด",
+    "category": "operations",
+    "default_time": "",
+    "color": "#555555",
+    "icon": "",
+    "notes": "พัก เตรียมคลิป หรือวางแผน"
+  },
+  {
+    "id": "follow",
+    "name": "รอติดตาม",
+    "category": "operations",
+    "default_time": "",
+    "color": "#777777",
+    "icon": "",
+    "notes": "ประกาศตามสถานการณ์"
+  }
+]

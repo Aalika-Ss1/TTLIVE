@@ -1,0 +1,8 @@
+{
+  "games_data": "07_data/games.json",
+  "weekly_schedule_dir": "07_data/weekly-schedules",
+  "schedule_output_dir": "08_outputs/schedules",
+  "cover_output_dir": "08_outputs/covers",
+  "live_cover_layout": "05_templates/live-cover/layout.json",
+  "weekly_schedule_layout": "05_templates/weekly-schedule/schedule-layout.json"
+}

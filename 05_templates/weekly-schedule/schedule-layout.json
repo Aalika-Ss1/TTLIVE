@@ -1,0 +1,34 @@
+{
+  "canvas": {
+    "width": 1920,
+    "height": 1080
+  },
+  "safe_area": {
+    "x": 120,
+    "y": 90,
+    "width": 1680,
+    "height": 900
+  },
+  "title": {
+    "x": 160,
+    "y": 110,
+    "font_size": 72,
+    "color": "#FFFFFF"
+  },
+  "table": {
+    "x": 160,
+    "y": 260,
+    "row_height": 120,
+    "columns": [
+      { "name": "day", "width": 260 },
+      { "name": "time", "width": 260 },
+      { "name": "topic", "width": 720 },
+      { "name": "note", "width": 420 }
+    ]
+  },
+  "logo": {
+    "x": 60,
+    "y": 50,
+    "width": 180
+  }
+}

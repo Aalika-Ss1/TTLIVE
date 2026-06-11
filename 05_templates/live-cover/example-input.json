@@ -1,0 +1,12 @@
+{
+  "date": "2026-06-15",
+  "platform": "tiktok",
+  "game": "Wild Rift",
+  "headline": "ไต่แรงค์ยาวๆ คืนนี้",
+  "subtitle": "เริ่ม 20:00 น.",
+  "background": "04_assets/backgrounds/default.png",
+  "logo": "04_assets/logos/ttlive-logo.png",
+  "character": "04_assets/characters/example.png",
+  "game_icon": "04_assets/game-icons/wild-rift.png",
+  "output": "08_outputs/covers/2026-06-15_wild-rift_tiktok_cover_v01.png"
+}
