@@ -37,6 +37,14 @@
 
 Tournament OS is a separate subsystem under `projects/tournament-os/`. It is for future tournament management work and should not be mixed into the normal weekly live workflow except through links, overlays, announcements, or reports.
 
+## Update: 2026-06-11 Tournament Rules Draft
+
+### Summary
+
+- Added `projects/tournament-os/spec/COMPETITION_RULES_DRAFT.md` as the first proposed competition rule set
+- Drafted MVP rules for registration, check-in, lobby grouping, scoring, tie-break, bye, evidence, disputes, and final results
+- Updated Tournament OS reading order and handoff notes to make the rule draft part of the next implementation review
+
 ## Update: 2026-06-11
 
 ### Summary

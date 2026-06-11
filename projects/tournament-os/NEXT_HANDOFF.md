@@ -10,6 +10,7 @@ Read projects/tournament-os/README.md.
 Read projects/tournament-os/SYSTEM_BOUNDARY.md.
 Read projects/tournament-os/PROJECT_CONTEXT.md.
 Read all files under projects/tournament-os/spec/.
+Pay special attention to projects/tournament-os/spec/COMPETITION_RULES_DRAFT.md as the current proposed tournament rule draft.
 
 Summarize your understanding of Tournament Operating System.
 Do not write code yet.
@@ -33,6 +34,8 @@ Confirm these decisions:
 - Tie-break rules
 - Bye rules
 - Check-in rules
+- Number of games per round
+- Whether scores reset each round or carry forward
 - Who can approve scores
 - Who can resolve disputes
 - Export format priority

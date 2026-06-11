@@ -47,16 +47,16 @@ This format is a starting assumption and must be reviewed before real use.
 
 ## Score Formula
 
-The exact Golden Spatula score formula is not locked yet.
+The exact Golden Spatula score formula is not locked yet. The current recommended draft is maintained in `COMPETITION_RULES_DRAFT.md`.
 
-Temporary placeholder:
+Current draft placeholder:
 
 | Result | Points |
 | :--- | ---: |
 | 1st place | 10 |
 | 2nd place | 8 |
-| 3rd place | 6 |
-| 4th place | 5 |
+| 3rd place | 7 |
+| 4th place | 6 |
 | 5th place | 4 |
 | 6th place | 3 |
 | 7th place | 2 |
