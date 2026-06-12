@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ title }}</title>
+    <link rel="stylesheet" href="/static/tournament-os.css">
+  </head>
+  <body class="stream-body">
+    <main class="stream-board">
+      <header>
+        <h1>{{ tournament.name }}</h1>
+        <span>{{ tournament.status.replace("_", " ").title() }}</span>
+      </header>
+      <ol>
+        {% for row in leaderboard %}
+        <li>
+          <span class="stream-rank">{{ row.rank }}</span>
+          <strong>{{ row.display_name }}</strong>
+          <em>{{ row.total_points }} pts</em>
+        </li>
+        {% endfor %}
+      </ol>
+    </main>
+    <script>
+      console.log("[SSE] Connecting to real-time events...");
+      const eventSource = new EventSource('/web/stream-events');
+
+      eventSource.addEventListener('score_update', (event) => {
+        console.log("[SSE] Score Update received, refreshing overlay...");
+        setTimeout(() => window.location.reload(), 500); // Small delay to let DB settle
+      });
+
+      eventSource.addEventListener('scene_switch', (event) => {
+        // Here we could handle hiding/showing the leaderboard based on scene
+        console.log("[SSE] Scene Switch:", event.data);
+      });
+      
+      eventSource.addEventListener('emergency', (event) => {
+        document.body.innerHTML = '<h1 style="color:red; text-align:center; margin-top:20vh; font-size:4rem; background:black;">TECHNICAL DIFFICULTIES</h1>';
+      });
+    </script>
+  </body>
+</html>

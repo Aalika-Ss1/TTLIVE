@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>{{ title }}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap">
+  <link rel="stylesheet" href="/static/admin_dashboard.css">
+</head>
+<body>
+
+  <!-- Header & Navigation -->
+  <header class="app-header">
+    <div class="brand-title">Golden Spatula <span>OS</span></div>
+    
+    <nav class="nav-tabs" id="mainTabs">
+      <button class="tab-btn active" data-target="tab-control">Control Center</button>
+      <button class="tab-btn" data-target="tab-caster">Caster Panel</button>
+      <button class="tab-btn" data-target="tab-settings">Setup & Settings</button>
+    </nav>
+  </header>
+
+  <!-- Main Content -->
+  <main class="app-content">
+    
+    <!-- TAB 1: Control Center -->
+    <div id="tab-control" class="tab-pane active">
+      <div class="dashboard-grid">
+        <!-- Verification Queue -->
+        <section class="panel">
+          <h2 class="panel-title">Verification Queue</h2>
+          <div id="verification-queue">
+            <!-- Simulated Queue Items -->
+            {% for score in scores[:3] %}
+            <div class="queue-item {% if loop.index == 1 %}warning{% endif %}" data-score-id="{{ score.id }}">
+              <div class="queue-info">
+                <h4>Player: {{ score.registration_id[-4:] }}</h4>
+                <p>Reported Placement: #{{ score.placement }}</p>
+                {% if loop.index == 1 %}<p style="color:var(--color-danger);font-weight:bold;font-size:11px;margin-top:4px;">Low OCR Confidence</p>{% endif %}
+              </div>
+              <div class="queue-actions">
+                <button class="btn btn-approve" onclick="handleAction('approve', '{{ score.id }}')">
+                  Approve <span class="hotkey-hint">A</span>
+                </button>
+                <button class="btn btn-reject" onclick="handleAction('reject', '{{ score.id }}')">
+                  Reject <span class="hotkey-hint">R</span>
+                </button>
+              </div>
+            </div>
+            {% else %}
+            <p style="color:var(--text-secondary); text-align:center; padding:20px;">No pending verifications.</p>
+            {% endfor %}
+          </div>
+        </section>
+
+        <!-- Lobby Status -->
+        <section class="panel">
+          <h2 class="panel-title">Lobby Status</h2>
+          <div style="display:flex; flex-direction:column; gap:12px;" id="lobby-status-container">
+            {% for group in groups %}
+            <div style="padding:12px; border:1px solid var(--border-color); border-radius:8px; display:flex; justify-content:space-between;">
+              <strong>{{ group.name }}</strong>
+              <span style="color:var(--accent-gold-light);font-size:12px;font-weight:bold;">LIVE</span>
+            </div>
+            {% else %}
+            <p style="color:var(--text-secondary); text-align:center;">No active lobbies.</p>
+            {% endfor %}
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <!-- TAB 2: Caster Control Panel -->
+    <div id="tab-caster" class="tab-pane">
+      <div class="panel" style="max-width:800px; margin:0 auto;">
+        <h2 class="panel-title">Scene Switcher (Stream Deck)</h2>
+        <div class="caster-grid" style="margin-bottom: 24px;">
+          <button class="btn btn-scene active" onclick="switchScene(this, 'leaderboard')">
+            🏆<br>Leaderboard
+          </button>
+          <button class="btn btn-scene" onclick="switchScene(this, 'lobby-results')">
+            ⚔️<br>Lobby Results
+          </button>
+          <button class="btn btn-scene" onclick="switchScene(this, 'qualified')">
+            ⭐<br>Qualified Players
+          </button>
+          <button class="btn btn-scene" onclick="switchScene(this, 'interview')">
+            🎤<br>Player Interview
+          </button>
+        </div>
+        
+        <h2 class="panel-title" style="color:var(--color-danger);">Emergency Controls</h2>
+        <button class="btn btn-danger" onclick="triggerEmergency()">
+          ⚠️ TECHNICAL DIFFICULTIES
+        </button>
+      </div>
+    </div>
+
+    <!-- TAB 3: Settings & Setup -->
+    <div id="tab-settings" class="tab-pane">
+      <div class="dashboard-grid">
+        <!-- Tournament Setup -->
+        <section class="panel">
+          <h2 class="panel-title">Tournament Setup</h2>
+          <div style="display:flex; flex-direction:column; gap:16px;">
+            <div>
+              <label style="display:block;margin-bottom:8px;font-size:14px;color:var(--text-secondary);">Tournament Name</label>
+              <input type="text" id="t-name" placeholder="Golden Spatula Weekly #1" style="width:100%;padding:10px;background:var(--bg-dark);border:1px solid var(--border-color);color:#fff;border-radius:6px;">
+            </div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+              <div>
+                <label style="display:block;margin-bottom:8px;font-size:14px;color:var(--text-secondary);">Max Players</label>
+                <input type="number" id="t-max" value="32" style="width:100%;padding:10px;background:var(--bg-dark);border:1px solid var(--border-color);color:#fff;border-radius:6px;">
+              </div>
+              <div>
+                <label style="display:block;margin-bottom:8px;font-size:14px;color:var(--text-secondary);">Active Ruleset</label>
+                <select style="width:100%;padding:10px;background:var(--bg-dark);border:1px solid var(--border-color);color:#fff;border-radius:6px;">
+                  <option>Group Points Qualifier</option>
+                </select>
+              </div>
+            </div>
+            <div style="display:flex; gap:12px; margin-top:8px;">
+              <button class="btn btn-approve" onclick="alert('Tournament Created!')">1. Create Draft</button>
+              <button class="btn btn-scene" onclick="alert('Rules Locked!')">2. Lock Rules</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- Registration & Grouping -->
+        <section class="panel">
+          <h2 class="panel-title">Registration & Grouping</h2>
+          <div style="display:flex; flex-direction:column; gap:16px;">
+            <div style="padding:12px; border:1px solid var(--border-color); border-radius:8px; display:flex; justify-content:space-between; align-items:center;">
+              <div>
+                <strong>Player A</strong> <span style="color:var(--text-secondary);font-size:12px;">(Pending)</span>
+              </div>
+              <div style="display:flex; gap:8px;">
+                <button class="btn" style="padding:6px 12px; background:var(--color-success); border:none; border-radius:4px; color:#fff;" onclick="this.parentElement.parentElement.style.opacity='0.5'">Approve</button>
+                <button class="btn" style="padding:6px 12px; background:var(--color-danger); border:none; border-radius:4px; color:#fff;" onclick="this.parentElement.parentElement.style.opacity='0.5'">Reject</button>
+              </div>
+            </div>
+            
+            <hr style="border:none; border-top:1px solid var(--border-color); margin:8px 0;">
+            
+            <p style="color:var(--text-secondary); font-size:14px;">Once registrations are closed and approved, generate the lobbies automatically.</p>
+            <button class="btn btn-scene" style="width:100%;" onclick="alert('Groups Generated!')">Generate Groups (Lobbies of 8)</button>
+          </div>
+        </section>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Vanilla JS Application Logic -->
+  <script>
+    // 1. Tab Switching Logic
+    const tabBtns = document.querySelectorAll('.tab-btn');
+    const tabPanes = document.querySelectorAll('.tab-pane');
+
+    tabBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        // Remove active class
+        tabBtns.forEach(b => b.classList.remove('active'));
+        tabPanes.forEach(p => p.classList.remove('active'));
+        
+        // Add active class to target
+        btn.classList.add('active');
+        document.getElementById(btn.dataset.target).classList.add('active');
+      });
+    });
+
+    // 2. Scene Switcher Logic
+    function switchScene(btnEl, sceneName) {
+      document.querySelectorAll('.btn-scene').forEach(b => b.classList.remove('active'));
+      btnEl.classList.add('active');
+      console.log(`[Overlay] Switched to scene: ${sceneName}`);
+      
+      // Notify backend to update OverlayConfig
+      fetch(`/api/admin/broadcast-test?event_type=scene_switch&message=${sceneName}`, {method:'POST'});
+    }
+
+    function triggerEmergency() {
+      if(confirm('Are you sure you want to trigger Emergency Mode? This will override the stream overlay.')) {
+        console.log('[Overlay] EMERGENCY MODE ACTIVATED');
+        fetch(`/api/admin/broadcast-test?event_type=emergency&message=active`, {method:'POST'});
+      }
+    }
+
+    // 3. Queue Action Logic & Hotkeys
+    let activeQueueItem = document.querySelector('.queue-item'); // Automatically focus first item
+
+    async function handleAction(action, id) {
+      if (!activeQueueItem) return;
+      console.log(`[Queue] ${action.toUpperCase()} score ID: ${id}`);
+      
+      try {
+        const response = await fetch(`/admin/scores/${id}/${action}`, { method: 'POST' });
+        if (!response.ok) {
+          throw new Error('API request failed');
+        }
+        
+        activeQueueItem.style.opacity = '0.5';
+        setTimeout(() => {
+          activeQueueItem.remove();
+          activeQueueItem = document.querySelector('.queue-item'); // focus next
+        }, 300);
+      } catch (error) {
+        console.error(`[Queue] Failed to ${action} score ID: ${id}`, error);
+        alert(`Failed to ${action} score. Check console for details.`);
+      }
+    }
+
+    // Keyboard Hotkeys
+    document.addEventListener('keydown', (e) => {
+      // Don't trigger if user is typing in an input
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+
+      if (!activeQueueItem) return;
+      const scoreId = activeQueueItem.dataset.scoreId;
+
+      if (e.key.toLowerCase() === 'a') {
+        e.preventDefault();
+        handleAction('approve', scoreId);
+      } else if (e.key.toLowerCase() === 'r') {
+        e.preventDefault();
+        handleAction('reject', scoreId);
+      }
+    });
+
+    // 4. Server-Sent Events (SSE) Auto-Refresh
+    function initSSE() {
+      console.log("[SSE] Connecting to real-time events...");
+      const eventSource = new EventSource('/web/stream-events');
+
+      eventSource.onopen = () => console.log("[SSE] Connected!");
+      
+      eventSource.onmessage = (event) => {
+        console.log("[SSE] Ping received");
+      };
+
+      eventSource.addEventListener('score_update', (event) => {
+        console.log("[SSE] Score Update:", event.data);
+        // Here we would dynamically update DOM elements without refreshing
+      });
+
+      eventSource.addEventListener('scene_switch', (event) => {
+        console.log("[SSE] Scene Switch Event (Sync across devices):", event.data);
+      });
+
+      eventSource.onerror = (err) => {
+        console.error("[SSE] Connection lost. Reconnecting...");
+      };
+    }
+
+    // Start SSE
+    initSSE();
+  </script>
+</body>
+</html>

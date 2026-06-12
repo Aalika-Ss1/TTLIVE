@@ -1,0 +1,446 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ title }}</title>
+  <meta name="description" content="{{ tournament.game }} tournament results, groups, and leaderboard.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap">
+  <link rel="stylesheet" href="/static/tournament-os.css">
+  <style>
+    :root {
+      --bg-base:      #08111a;
+      --bg-surface:   #0d1c28;
+      --bg-card:      #112030;
+      --border:       rgba(255,255,255,.07);
+      --text:         #ddeef8;
+      --text-muted:   #5a7a8a;
+      --accent:       #14c8b4;
+      --accent-soft:  rgba(20,200,180,.1);
+      --accent-glow:  rgba(20,200,180,.25);
+      --gold:         #ffd060;
+      --silver:       #a8c8d8;
+      --bronze:       #e08850;
+      --green:        #28d88a;
+      --red:          #e04858;
+      --radius:       12px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg-base);
+      color: var(--text);
+      font-family: 'Inter', ui-sans-serif, sans-serif;
+      font-size: 14px;
+      min-height: 100vh;
+    }
+    a { color: inherit; text-decoration: none; }
+
+    /* Header */
+    .app-header {
+      position: sticky; top: 0; z-index: 50;
+      display: flex; align-items: center; justify-content: space-between;
+      height: 60px; padding: 0 32px;
+      background: rgba(8,17,26,.85);
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(20px);
+    }
+    .brand {
+      font-size: 18px; font-weight: 900; letter-spacing: -.4px;
+      color: #fff;
+    }
+    .brand em { font-style: normal; color: var(--accent); }
+
+    .top-nav { display: flex; gap: 4px; }
+    .top-nav a {
+      padding: 8px 14px;
+      border-radius: 8px;
+      color: rgba(255,255,255,.5);
+      font-size: 13px; font-weight: 600;
+      transition: all .15s;
+    }
+    .top-nav a:hover { background: rgba(255,255,255,.06); color: #fff; }
+    .admin-link {
+      padding: 7px 14px;
+      border-radius: 8px;
+      background: var(--accent-soft);
+      border: 1px solid var(--accent-glow);
+      color: var(--accent);
+      font-size: 12px; font-weight: 700;
+      transition: all .15s;
+    }
+    .admin-link:hover { background: rgba(20,200,180,.18); }
+
+    /* Hero */
+    .hero {
+      padding: 48px 32px 24px;
+      max-width: 1200px; margin: 0 auto;
+    }
+    .hero-game-tag {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 4px 12px;
+      background: var(--accent-soft);
+      border: 1px solid var(--accent-glow);
+      border-radius: 20px;
+      font-size: 11px; font-weight: 800;
+      text-transform: uppercase; letter-spacing: .8px;
+      color: var(--accent);
+      margin-bottom: 14px;
+    }
+    .hero h1 {
+      font-size: clamp(28px, 4vw, 52px);
+      font-weight: 900; letter-spacing: -1.5px;
+      line-height: 1.05; color: #fff;
+    }
+
+    /* Status Strip */
+    .status-strip {
+      display: flex; gap: 24px;
+      margin-top: 20px; padding-top: 20px;
+      border-top: 1px solid var(--border);
+    }
+    .status-item {}
+    .status-label {
+      font-size: 10px; font-weight: 800;
+      text-transform: uppercase; letter-spacing: .8px;
+      color: var(--text-muted);
+    }
+    .status-value {
+      font-size: 22px; font-weight: 900; margin-top: 4px;
+    }
+    .status-value.live { color: var(--accent); }
+
+    /* Shell */
+    .page-shell {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 24px 32px 64px;
+    }
+
+    /* Grid */
+    .content-grid {
+      display: grid;
+      grid-template-columns: 1fr 300px;
+      gap: 24px;
+      align-items: start;
+      margin-bottom: 32px;
+    }
+
+    /* Panel */
+    .panel {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+    .panel-head {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 18px 20px;
+      border-bottom: 1px solid var(--border);
+    }
+    .panel-head h2 { font-size: 16px; font-weight: 800; letter-spacing: -.2px; }
+    .panel-head .meta { font-size: 12px; color: var(--text-muted); }
+
+    /* Table */
+    table { width: 100%; border-collapse: collapse; }
+    th {
+      padding: 12px 18px;
+      text-align: left;
+      font-size: 10px; font-weight: 800;
+      text-transform: uppercase; letter-spacing: .8px;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--border);
+    }
+    td {
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--border);
+      font-size: 13px; font-weight: 500;
+    }
+    tr:last-child td { border-bottom: 0; }
+    tbody tr { transition: background .1s; }
+    tbody tr:hover td { background: rgba(255,255,255,.02); }
+
+    .rank-cell {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      font-size: 13px; font-weight: 900;
+    }
+    .rank-1 { background: linear-gradient(135deg,#b8862a,#ffd060); color: #1a0f00; box-shadow: 0 0 12px rgba(255,208,96,.3); }
+    .rank-2 { background: linear-gradient(135deg,#6a8898,#a8c8d8); color: #0a1820; }
+    .rank-3 { background: linear-gradient(135deg,#8a5030,#e08850); color: #1a0800; }
+    .rank-n { background: rgba(255,255,255,.05); border: 1px solid var(--border); color: var(--text-muted); }
+
+    .score-pts {
+      font-size: 16px; font-weight: 900; color: var(--accent);
+      text-align: right;
+    }
+
+    /* Winner panel */
+    .winner-panel { padding: 0; }
+    .winner-crown { padding: 20px 20px 8px; text-align: center; font-size: 40px; }
+    .winner-name {
+      text-align: center; padding: 0 20px 6px;
+      font-size: 22px; font-weight: 900; color: var(--gold);
+      letter-spacing: -.5px;
+    }
+    .winner-pts {
+      text-align: center; padding: 0 20px 20px;
+      font-size: 14px; font-weight: 700; color: var(--text-muted);
+    }
+    .winner-stage {
+      padding: 10px 20px;
+      border-top: 1px solid var(--border);
+      font-size: 11px; font-weight: 800;
+      text-transform: uppercase; letter-spacing: .8px;
+      color: var(--text-muted);
+    }
+
+    /* Stage list */
+    .stage-list { list-style: none; padding: 12px 16px 16px; display: grid; gap: 8px; }
+    .stage-list li {
+      display: flex; align-items: center; gap: 12px;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      transition: border-color .15s;
+    }
+    .stage-list li:hover { border-color: rgba(255,255,255,.14); }
+    .stage-num {
+      width: 28px; height: 28px; border-radius: 7px;
+      background: var(--bg-surface); border: 1px solid var(--border);
+      display: grid; place-items: center;
+      font-size: 12px; font-weight: 900; color: var(--accent);
+      flex-shrink: 0;
+    }
+    .stage-name { font-size: 13px; font-weight: 700; }
+    .stage-status { font-size: 11px; color: var(--text-muted); }
+
+    /* Badge */
+    .badge {
+      display: inline-flex; align-items: center;
+      padding: 3px 8px; border-radius: 12px;
+      font-size: 10px; font-weight: 800;
+      text-transform: uppercase; letter-spacing: .5px;
+      margin-left: auto;
+    }
+    .badge-finalized { background: rgba(64,144,248,.12); color: #4090f8; border: 1px solid rgba(64,144,248,.2); }
+    .badge-live      { background: var(--accent-soft); color: var(--accent); border: 1px solid var(--accent-glow); }
+    .badge-draft, .badge-ready { background: rgba(100,120,140,.1); color: var(--text-muted); border: 1px solid var(--border); }
+
+    /* Groups section */
+    .groups-section { margin-bottom: 0; }
+    .groups-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px,1fr));
+      gap: 16px;
+      padding: 18px;
+    }
+    .group-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: 10px; overflow: hidden;
+      transition: border-color .15s;
+    }
+    .group-card:hover { border-color: rgba(255,255,255,.14); }
+    .group-head {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--border);
+    }
+    .group-head strong { display: block; font-size: 13px; font-weight: 800; }
+    .group-head span   { font-size: 11px; color: var(--text-muted); }
+    .group-list { list-style: none; }
+    .group-list li {
+      display: flex; align-items: center; gap: 10px;
+      padding: 9px 14px;
+      border-bottom: 1px solid var(--border);
+      font-size: 12px;
+    }
+    .group-list li:last-child { border-bottom: 0; }
+    .g-seed {
+      width: 22px; height: 22px; border-radius: 5px;
+      background: rgba(20,200,180,.1); border: 1px solid var(--accent-glow);
+      display: grid; place-items: center;
+      font-size: 10px; font-weight: 900; color: var(--accent); flex-shrink: 0;
+    }
+    .g-status { margin-left: auto; font-size: 10px; font-weight: 700; color: var(--text-muted); }
+    .g-status.advanced { color: var(--green); }
+    .g-status.eliminated { color: var(--red); opacity: .6; }
+
+    /* Empty */
+    .empty-msg { padding: 40px; text-align: center; color: var(--text-muted); font-size: 13px; }
+
+    @media (max-width: 860px) {
+      .hero { padding: 32px 20px 16px; }
+      .page-shell { padding: 16px 20px 48px; }
+      .app-header { padding: 0 16px; }
+      .content-grid { grid-template-columns: 1fr; }
+      .status-strip { flex-wrap: wrap; gap: 16px; }
+    }
+  </style>
+</head>
+<body>
+
+<header class="app-header">
+  <a class="brand" href="/"><em>Tournament</em> OS</a>
+  <nav class="top-nav" aria-label="Primary">
+    <a href="#overview">Overview</a>
+    <a href="#leaderboard">Leaderboard</a>
+    <a href="#groups">Groups</a>
+    <a href="/web/tournaments/{{ tournament.public_slug }}/stream">Stream View</a>
+  </nav>
+  <a class="admin-link" href="/web/admin/tournaments/{{ tournament.public_slug }}">âš™ Admin Console</a>
+</header>
+
+<!-- Hero -->
+<div class="hero" id="overview">
+  <div class="hero-game-tag">ðŸŽ® {{ tournament.game }}</div>
+  <h1>{{ tournament.name }}</h1>
+  <p style="margin-top:10px;font-size:15px;color:var(--text-muted);max-width:600px;">
+    Official results, group standings, and live leaderboard for players, viewers, and casters.
+  </p>
+  <div class="status-strip">
+    <div class="status-item">
+      <div class="status-label">Status</div>
+      <div class="status-value live">{{ tournament.status.replace("_"," ").title() }}</div>
+    </div>
+    <div class="status-item">
+      <div class="status-label">Players</div>
+      <div class="status-value">{{ leaderboard | length }}</div>
+    </div>
+    <div class="status-item">
+      <div class="status-label">Stages</div>
+      <div class="status-value">{{ stages | length }}</div>
+    </div>
+    {% if winner %}
+    <div class="status-item">
+      <div class="status-label">Current Leader</div>
+      <div class="status-value" style="color:var(--gold)">{{ winner.display_name }}</div>
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+<div class="page-shell">
+  <!-- Main content grid -->
+  <div class="content-grid">
+
+    <!-- Leaderboard Panel -->
+    <section id="leaderboard" class="panel">
+      <div class="panel-head">
+        <h2>Leaderboard</h2>
+        <span class="meta">Approved scores only</span>
+      </div>
+      <div style="overflow-x:auto;">
+        <table>
+          <thead>
+            <tr>
+              <th>Rank</th>
+              <th>Player</th>
+              <th>Group</th>
+              <th>Games</th>
+              <th style="text-align:right">Points</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in leaderboard %}
+            <tr>
+              <td>
+                <span class="rank-cell rank-{% if row.rank <= 3 %}{{ row.rank }}{% else %}n{% endif %}">
+                  {{ row.rank }}
+                </span>
+              </td>
+              <td><strong>{{ row.display_name }}</strong></td>
+              <td style="color:var(--text-muted)">{{ row.group_name or "Final" }}</td>
+              <td style="color:var(--text-muted)">{{ row.games_played }}</td>
+              <td class="score-pts">{{ row.total_points }}</td>
+            </tr>
+            {% else %}
+            <tr><td colspan="5" style="padding:40px;text-align:center;color:var(--text-muted)">Scores not yet approved.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Right Sidebar -->
+    <aside>
+      <!-- Winner Panel -->
+      <div class="panel winner-panel" style="margin-bottom:20px;">
+        <div class="panel-head">
+          <h2>Champion</h2>
+          <span class="meta">{{ final_stage.name if final_stage else "Pending" }}</span>
+        </div>
+        {% if winner %}
+        <div class="winner-crown">ðŸ†</div>
+        <div class="winner-name">{{ winner.display_name }}</div>
+        <div class="winner-pts">{{ winner.total_points }} points</div>
+        {% else %}
+        <div class="empty-msg" style="padding:28px 20px;">Winner will appear after final scores are approved.</div>
+        {% endif %}
+      </div>
+
+      <!-- Stages Panel -->
+      <div class="panel">
+        <div class="panel-head">
+          <h2>Progression</h2>
+          <span class="meta">{{ stages | length }} stages</span>
+        </div>
+        <ol class="stage-list">
+          {% for stage in stages %}
+          <li>
+            <div class="stage-num">{{ stage.sequence }}</div>
+            <div>
+              <div class="stage-name">{{ stage.name }}</div>
+              <div class="stage-status">{{ stage.status.replace("_"," ").title() }}</div>
+            </div>
+            <span class="badge badge-{{ stage.status }}">{{ stage.status }}</span>
+          </li>
+          {% else %}
+          <li style="border:none;padding:20px 0;justify-content:center;color:var(--text-muted);font-size:13px;">No stages yet.</li>
+          {% endfor %}
+        </ol>
+      </div>
+    </aside>
+  </div>
+
+  <!-- Groups Section -->
+  <section id="groups" class="panel groups-section">
+    <div class="panel-head">
+      <h2>Groups &amp; Lobbies</h2>
+      <span class="meta">Public-safe lobby view</span>
+    </div>
+    {% for stage_data in groups %}
+    <div style="padding:12px 18px 6px;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.8px;color:var(--text-muted)">
+      {{ stage_data.name }}
+    </div>
+    <div class="groups-grid">
+      {% for group in stage_data.groups %}
+      <article class="group-card">
+        <div class="group-head">
+          <strong>{{ group.name }}</strong>
+          <span>{{ group.participants | length }} players</span>
+        </div>
+        <ul class="group-list">
+          {% for p in group.participants[:8] %}
+          <li>
+            <span class="g-seed">{{ p.seed or loop.index }}</span>
+            <span style="flex:1;font-weight:600;">{{ p.display_name }}</span>
+            <span class="g-status {{ p.status }}">{{ p.status.replace("_"," ").title() }}</span>
+          </li>
+          {% endfor %}
+        </ul>
+      </article>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-msg">Groups not yet published.</div>
+    {% endfor %}
+  </section>
+</div>
+
+</body>
+</html>

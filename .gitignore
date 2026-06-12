@@ -19,6 +19,7 @@ __pycache__/
 *.pyc
 .venv/
 venv/
+*.db
 
 # System
 Thumbs.db
