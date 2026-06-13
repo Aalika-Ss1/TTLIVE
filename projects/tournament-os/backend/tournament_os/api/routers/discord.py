@@ -121,6 +121,14 @@ def discord_register(
 def discord_submit_score(
     payload: DiscordScoreSubmitRequest,
     session: Session = Depends(get_session),
-) -> dict[str, str]:
-    DiscordIntegrationService(session).submit_score_from_discord()
-    return {"status": "unavailable"}
+) -> dict[str, object]:
+    result = DiscordIntegrationService(session).submit_score_from_discord(
+        tournament_id=payload.tournament_id,
+        discord_user_id=payload.discord_user_id,
+        round_name=payload.round_name,
+        placement=payload.placement,
+        kills=payload.kills,
+        evidence_uri=payload.evidence_uri,
+    )
+    session.commit()
+    return result

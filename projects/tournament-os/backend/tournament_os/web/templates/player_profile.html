@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ title }}</title>
+    <link rel="stylesheet" href="/static/tournament-os.css">
+    <style>
+      .profile-shell { max-width: 500px; margin: 60px auto; padding: 32px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; box-shadow: var(--shadow); }
+      .btn-discord { display: flex; justify-content: center; align-items: center; gap: 8px; width: 100%; padding: 14px; background: #5865F2; color: #fff; text-decoration: none; border-radius: 8px; font-weight: 800; font-size: 16px; transition: opacity 0.2s; }
+      .btn-discord:hover { opacity: 0.9; }
+      .user-card { display: flex; align-items: center; gap: 16px; padding: 16px; background: var(--surface-strong); border-radius: 8px; margin-bottom: 24px; border: 1px solid var(--border); }
+      .user-card img { width: 56px; height: 56px; border-radius: 50%; }
+      .form-group { margin-bottom: 20px; }
+      .form-group label { display: block; margin-bottom: 8px; color: var(--muted); font-size: 13px; font-weight: 800; text-transform: uppercase; }
+      .form-group input { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg); color: var(--text); font-size: 15px; }
+      .btn-submit { width: 100%; padding: 14px; background: var(--accent); color: #fff; border: none; border-radius: 8px; font-weight: 800; font-size: 16px; cursor: pointer; transition: opacity 0.2s; }
+      .btn-submit:hover { opacity: 0.9; }
+      .status-banner { padding: 16px; background: var(--accent-soft); color: var(--accent); border-radius: 8px; margin-bottom: 24px; font-weight: 600; text-align: center; border: 1px solid rgba(8, 127, 122, 0.2); }
+    </style>
+  </head>
+  <body>
+    <div class="profile-shell">
+      <div style="text-align: center; margin-bottom: 32px;">
+        <h1 style="margin:0; font-size: 24px;">{{ tournament.name }}</h1>
+        <p style="color: var(--muted); margin-top: 8px;">Player Registration & Profile</p>
+      </div>
+
+      {% if not discord_user_id %}
+        <!-- STATE 1: Unauthenticated -->
+        <div style="text-align: center;">
+          <p style="margin-bottom: 24px; color: var(--muted); line-height: 1.6;">
+            กรุณายืนยันตัวตนด้วยบัญชี Discord ของคุณเพื่อความปลอดภัยในการสมัครแข่งขัน
+          </p>
+          <a href="/web/auth/discord/login?tournament_id={{ tournament.id }}" class="btn-discord">
+            <svg width="24" height="24" viewBox="0 0 127.14 96.36" fill="currentColor">
+              <path d="M107.7 8.07A105.15 105.15 0 0 0 81.47 0a72.06 72.06 0 0 0-3.36 6.83 97.68 97.68 0 0 0-29.08 0 72.37 72.37 0 0 0-3.36-6.83 105.15 105.15 0 0 0-26.23 8.07C2.04 33.84-2.43 59 1.15 83.74a105.43 105.43 0 0 0 32.14 16.14 74.34 74.34 0 0 0 6.83-11.13 70 70 0 0 1-10.87-5.18 51.5 51.5 0 0 0 2.14-1.61c21.84 10.15 45.45 10.15 67.23 0a51.5 51.5 0 0 0 2.14 1.61 70 70 0 0 1-10.87 5.18 74.34 74.34 0 0 0 6.83 11.13 105.43 105.43 0 0 0 32.14-16.14c4.13-28-2.61-49.9-20.93-75.67Zm-67.92 63.8c-6.83 0-12.44-6.3-12.44-14s5.49-14 12.44-14 12.56 6.3 12.44 14-5.49 14-12.44 14Zm47.58 0c-6.83 0-12.44-6.3-12.44-14s5.49-14 12.44-14 12.56 6.3 12.44 14-5.49 14-12.44 14Z"/>
+            </svg>
+            Login with Discord
+          </a>
+        </div>
+      {% else %}
+        <!-- STATE 2: Authenticated -->
+        <div class="user-card">
+          {% if discord_avatar %}
+          <img src="https://cdn.discordapp.com/avatars/{{ discord_user_id }}/{{ discord_avatar }}.png" alt="Avatar">
+          {% else %}
+          <div style="width:56px;height:56px;background:#5865F2;border-radius:50%;"></div>
+          {% endif %}
+          <div style="flex: 1;">
+            <strong style="display:block; font-size: 18px;">{{ discord_username }}</strong>
+            <span style="font-size:12px;color:var(--green); font-weight: 700;">✓ Authenticated</span>
+          </div>
+          <a href="/web/auth/logout?tournament_id={{ tournament.id }}" style="color:var(--color-danger); font-size:12px; font-weight: 700; text-decoration: underline;">Logout</a>
+        </div>
+        
+        {% if registration %}
+          <div class="status-banner">
+            <div style="font-size: 24px; margin-bottom: 8px;">🎉</div>
+            ใบสมัครของคุณอยู่ในระบบเรียบร้อยแล้ว<br>
+            <span style="color: var(--text); font-weight: normal; display: block; margin-top: 8px;">ชื่อในเกม: <strong>{{ registration.display_name }}</strong></span>
+            <span style="color: var(--text); font-weight: normal; display: block;">สถานะ: <strong style="text-transform: capitalize;">{{ registration.status.replace('_', ' ') }}</strong></span>
+          </div>
+        {% else %}
+          <form method="POST" action="/web/tournaments/{{ tournament.id }}/profile">
+            <div class="form-group">
+              <label>ชื่อในเกม (In-Game Name)</label>
+              <input type="text" name="in_game_name" required placeholder="เช่น Yone Main">
+            </div>
+            <div class="form-group">
+              <label>รหัสอ้างอิงในเกม (Game UID)</label>
+              <input type="text" name="game_uid" required placeholder="เช่น 123456789">
+            </div>
+            <button type="submit" class="btn-submit">ยืนยันการสมัครแข่งขัน</button>
+          </form>
+        {% endif %}
+      {% endif %}
+    </div>
+  </body>
+</html>

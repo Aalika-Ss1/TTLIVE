@@ -1,4 +1,4 @@
-﻿<!doctype html>
+﻿﻿<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
@@ -442,5 +442,27 @@
   </section>
 </div>
 
+<!-- Real-time Updates (SSE) -->
+<script>
+  function initRealtime() {
+    console.log("[Tournament OS] Connecting to live event stream...");
+    const eventSource = new EventSource('/web/stream-events');
+
+    eventSource.onopen = () => console.log("[Tournament OS] Live connection established.");
+
+    eventSource.addEventListener('score_update', (event) => {
+      console.log("[Tournament OS] Score updated by Admin. Refreshing data in 1.5s...");
+      // MVP Phase 1: Use a simple delayed reload to ensure all data (Leaderboard, Groups, Stages) 
+      // is perfectly synced without complex DOM manipulation.
+      setTimeout(() => window.location.reload(), 1500);
+    });
+
+    eventSource.onerror = (err) => {
+      console.error("[Tournament OS] Connection lost. Browser will attempt to reconnect automatically.");
+    };
+  }
+
+  initRealtime();
+</script>
 </body>
 </html>

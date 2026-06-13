@@ -1,6 +1,10 @@
 import os
+import sys
 import disnake
 from disnake.ext import commands
+
+if sys.stdout.encoding.lower() != 'utf-8':
+    sys.stdout.reconfigure(encoding='utf-8')
 
 # Load environment variables (In production, use python-dotenv)
 DISCORD_TOKEN = os.getenv("DISCORD_TOKEN", "YOUR_BOT_TOKEN_HERE")

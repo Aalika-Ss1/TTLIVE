@@ -60,11 +60,21 @@ async def lifespan(app: FastAPI):
     yield
 
 def create_app() -> FastAPI:
+    from starlette.middleware.sessions import SessionMiddleware
+    import os
+    
     app = FastAPI(
         title=settings.app_name,
         version=settings.app_version,
         description="Phase 1 backend foundation for TTLIVE Tournament OS.",
         lifespan=lifespan,
+    )
+    
+    # Required for Discord OAuth2
+    app.add_middleware(
+        SessionMiddleware,
+        secret_key=os.getenv("SESSION_SECRET", "super_secret_for_development"),
+        session_cookie="tournament_os_session"
     )
     app.add_exception_handler(DomainError, domain_error_handler)
     app.middleware("http")(enforce_admin_auth)

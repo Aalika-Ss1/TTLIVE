@@ -2,10 +2,11 @@ import disnake
 from disnake.ext import commands
 import aiohttp
 import os
+from utils import get_localized_error
 
 API_BASE_URL = os.getenv("TOURNAMENT_API_URL", "http://127.0.0.1:8011")
 
-TOURNAMENT_ID = "demo_tournament_1"
+DEFAULT_TOURNAMENT_ID = os.getenv("TOURNAMENT_ID", "demo_tournament_1")
 
 # Status labels in Thai
 STATUS_LABELS = {
@@ -17,17 +18,19 @@ STATUS_LABELS = {
     "withdrawn": "🚫 ถอนตัวแล้ว",
 }
 
-def build_status_view(allowed_actions: list, check_in_session_id: str = None) -> disnake.ui.View:
+def build_status_view(allowed_actions: list, check_in_session_id: str = None, tournament_id: str = None) -> disnake.ui.View:
     """Build a View with buttons based on allowed_actions from the backend."""
     view = disnake.ui.View(timeout=None)
+    
+    tid = tournament_id or DEFAULT_TOURNAMENT_ID
     
     if "register" in allowed_actions:
         view.add_item(disnake.ui.Button(
             label="📝 สมัครแข่งขัน", style=disnake.ButtonStyle.success,
-            custom_id="panel_register", row=0
+            custom_id=f"panel_register:{tid}", row=0
         ))
     if "check_in" in allowed_actions:
-        cid = f"panel_checkin__{check_in_session_id}" if check_in_session_id else "panel_checkin"
+        cid = f"panel_checkin__{check_in_session_id}:{tid}" if check_in_session_id else f"panel_checkin:{tid}"
         view.add_item(disnake.ui.Button(
             label="✅ เช็คอิน", style=disnake.ButtonStyle.success,
             custom_id=cid, row=0
@@ -35,27 +38,27 @@ def build_status_view(allowed_actions: list, check_in_session_id: str = None) ->
     if "view_group" in allowed_actions:
         view.add_item(disnake.ui.Button(
             label="🎮 สายการแข่งของฉัน", style=disnake.ButtonStyle.primary,
-            custom_id="panel_group", row=0
+            custom_id=f"panel_group:{tid}", row=0
         ))
     if "submit_evidence" in allowed_actions:
         view.add_item(disnake.ui.Button(
             label="📸 ส่งภาพผลการแข่ง", style=disnake.ButtonStyle.secondary,
-            custom_id="panel_evidence_hint", row=1
+            custom_id=f"panel_evidence_hint:{tid}", row=1
         ))
     if "view_status" in allowed_actions:
         view.add_item(disnake.ui.Button(
             label="📊 ดูสถานะ", style=disnake.ButtonStyle.secondary,
-            custom_id="panel_status", row=1
+            custom_id=f"panel_status:{tid}", row=1
         ))
 
     # Always show leaderboard and dispute
     view.add_item(disnake.ui.Button(
         label="🏆 ตารางคะแนน", style=disnake.ButtonStyle.secondary,
-        custom_id="panel_leaderboard", row=1
+        custom_id=f"panel_leaderboard:{tid}", row=1
     ))
     view.add_item(disnake.ui.Button(
         label="🚨 แจ้งปัญหา", style=disnake.ButtonStyle.danger,
-        custom_id="panel_dispute", row=2
+        custom_id=f"panel_dispute:{tid}", row=2
     ))
     return view
 
@@ -65,8 +68,10 @@ class PlayerCog(commands.Cog):
         self.bot = bot
 
     @commands.slash_command(description="Spawn the Player Control Panel (Admin only)", default_member_permissions=disnake.Permissions(administrator=True))
-    async def spawn_player_panel(self, inter: disnake.ApplicationCommandInteraction):
+    async def spawn_player_panel(self, inter: disnake.ApplicationCommandInteraction, tournament_id: str = None):
         await inter.response.defer()
+        
+        tid = tournament_id or DEFAULT_TOURNAMENT_ID
         
         embed = disnake.Embed(
             title="🎮 ศูนย์ควบคุมผู้เล่น (Player Control Panel)",
@@ -79,15 +84,21 @@ class PlayerCog(commands.Cog):
         view = disnake.ui.View(timeout=None)
         view.add_item(disnake.ui.Button(
             label="📊 เช็คสถานะของฉัน", style=disnake.ButtonStyle.primary,
-            custom_id="panel_status", emoji="🔍"
+            custom_id=f"panel_status:{tid}", emoji="🔍"
         ))
         
         await inter.channel.send(embed=embed, view=view)
-        await inter.edit_original_response(content="✅ Player Control Panel spawned successfully.")
+        await inter.edit_original_response(content=f"✅ Player Control Panel spawned successfully for `{tid}`.")
 
     @commands.Cog.listener()
     async def on_button_click(self, inter: disnake.MessageInteraction):
-        cid = inter.component.custom_id
+        cid_full = inter.component.custom_id
+        if not cid_full:
+            return
+
+        parts = cid_full.split(":")
+        cid = parts[0]
+        tournament_id = parts[1] if len(parts) > 1 else DEFAULT_TOURNAMENT_ID
 
         # ─── STATUS: Dynamic entry point ───────────────────────────────────
         if cid == "panel_status":
@@ -95,7 +106,7 @@ class PlayerCog(commands.Cog):
             discord_user_id = str(inter.author.id)
             try:
                 async with aiohttp.ClientSession() as session:
-                    url = f"{API_BASE_URL}/discord/players/me/status?tournament_id={TOURNAMENT_ID}&discord_user_id={discord_user_id}"
+                    url = f"{API_BASE_URL}/discord/players/me/status?tournament_id={tournament_id}&discord_user_id={discord_user_id}"
                     async with session.get(url) as resp:
                         if resp.status != 200:
                             await inter.edit_original_response(content="⚠️ ไม่สามารถดึงข้อมูลสถานะได้ครับ")
@@ -131,39 +142,25 @@ class PlayerCog(commands.Cog):
             elif status == "rejected":
                 embed.description = "ขออภัยครับ การสมัครของคุณไม่ผ่าน กรุณาติดต่อแอดมิน"
                 
-            view = build_status_view(allowed, check_in_session_id)
+            view = build_status_view(allowed, check_in_session_id, tournament_id)
             await inter.edit_original_response(embed=embed, view=view)
             return
 
         # ─── REGISTER ──────────────────────────────────────────────────────
         if cid == "panel_register":
-            await inter.response.send_modal(
-                title="📝 สมัครแข่งขัน (Registration)",
-                custom_id="modal_register",
-                components=[
-                    disnake.ui.TextInput(
-                        label="ชื่อในเกม (In-game Name)",
-                        placeholder="กรอกชื่อในเกมของคุณ...",
-                        custom_id="in_game_name",
-                        style=disnake.TextInputStyle.short,
-                        required=True
-                    ),
-                    disnake.ui.TextInput(
-                        label="รหัสในเกม (Game ID/UID)",
-                        placeholder="กรอก ID ของคุณ (ตัวเลข/ตัวอักษร)...",
-                        custom_id="game_id",
-                        style=disnake.TextInputStyle.short,
-                        required=True
-                    ),
-                    disnake.ui.TextInput(
-                        label="ชื่อทีม (ถ้ามี)",
-                        placeholder="เว้นว่างได้ถ้าไม่มีทีม",
-                        custom_id="team_name",
-                        style=disnake.TextInputStyle.short,
-                        required=False
-                    )
-                ]
+            # Phase 2: Send a link to the Web Profile page instead of a Modal
+            web_url = f"{API_BASE_URL.replace('/api', '')}/web/tournaments/{tournament_id}/profile?discord_id={inter.author.id}"
+            
+            embed = disnake.Embed(
+                title="📝 สมัครแข่งขันผ่าน Web Profile", 
+                description="ใน Phase 2 นี้ การสมัครและจัดการโปรไฟล์จะย้ายไปที่หน้าเว็บไซต์เพื่อความสะดวกและรวดเร็วครับ\n\n**กรุณากดปุ่มด้านล่างเพื่อไปยังหน้าเว็บลงทะเบียนครับ**", 
+                color=0x2ECC71
             )
+            
+            view = disnake.ui.View()
+            view.add_item(disnake.ui.Button(label="ไปยังหน้าเว็บ Profile", url=web_url, style=disnake.ButtonStyle.link, emoji="🌐"))
+            
+            await inter.response.send_message(embed=embed, view=view, ephemeral=True)
             return
 
         # ─── CHECK-IN ──────────────────────────────────────────────────────
@@ -188,7 +185,7 @@ class PlayerCog(commands.Cog):
                             )
                         else:
                             data = await resp.json()
-                            message = data.get("detail") or data.get("error", {}).get("message") or "เช็คอินไม่สำเร็จ"
+                            message = get_localized_error(data)
                             await inter.edit_original_response(content=f"❌ {message}")
             except Exception:
                 await inter.edit_original_response(content="⚠️ Error connecting to backend.")
@@ -200,7 +197,7 @@ class PlayerCog(commands.Cog):
             discord_user_id = str(inter.author.id)
             try:
                 async with aiohttp.ClientSession() as session:
-                    url = f"{API_BASE_URL}/discord/players/me/group?tournament_id={TOURNAMENT_ID}&discord_user_id={discord_user_id}"
+                    url = f"{API_BASE_URL}/discord/players/me/group?tournament_id={tournament_id}&discord_user_id={discord_user_id}"
                     async with session.get(url) as resp:
                         if resp.status == 200:
                             data = await resp.json()
@@ -229,7 +226,7 @@ class PlayerCog(commands.Cog):
             await inter.response.defer(ephemeral=True)
             try:
                 async with aiohttp.ClientSession() as session:
-                    url = f"{API_BASE_URL}/discord/leaderboard?tournament_id={TOURNAMENT_ID}"
+                    url = f"{API_BASE_URL}/discord/leaderboard?tournament_id={tournament_id}"
                     async with session.get(url) as resp:
                         if resp.status == 200:
                             data = await resp.json()
@@ -260,7 +257,7 @@ class PlayerCog(commands.Cog):
         elif cid == "panel_dispute":
             await inter.response.send_modal(
                 title="🚨 แจ้งปัญหา (Dispute)",
-                custom_id="modal_dispute",
+                custom_id=f"modal_dispute:{tournament_id}",
                 components=[
                     disnake.ui.TextInput(
                         label="รายละเอียดปัญหา",
@@ -276,46 +273,46 @@ class PlayerCog(commands.Cog):
 
     @commands.Cog.listener()
     async def on_modal_submit(self, inter: disnake.ModalInteraction):
-        if inter.custom_id == "modal_dispute":
+        cid_full = inter.custom_id
+        if not cid_full:
+            return
+            
+        parts = cid_full.split(":")
+        cid = parts[0]
+        tournament_id = parts[1] if len(parts) > 1 else DEFAULT_TOURNAMENT_ID
+
+        if cid == "modal_dispute":
             reason = inter.text_values["dispute_reason"]
             await inter.response.send_message(
                 f"🚨 **แจ้งปัญหาสำเร็จ!**\nรายละเอียด: `{reason}`\nแอดมินได้รับแจ้งปัญหาแล้ว กรุณารอการติดต่อกลับครับ",
                 ephemeral=True
             )
+            
+            dispute_channel = disnake.utils.get(inter.guild.channels, name="⚖️-แจ้งปัญหา")
+            if dispute_channel:
+                embed = disnake.Embed(title="🚨 [NEW DISPUTE] มีการแจ้งปัญหาใหม่!", color=0xE74C3C)
+                embed.add_field(name="ผู้แจ้ง (Player)", value=inter.author.mention, inline=False)
+                embed.add_field(name="รายละเอียดปัญหา", value=reason, inline=False)
+                
+                referee_role = disnake.utils.get(inter.guild.roles, name="กรรมการ")
+                mention = referee_role.mention if referee_role else ""
+                
+                await dispute_channel.send(content=f"🚨 {mention} มีการแจ้งปัญหาใหม่ครับ", embed=embed)
             return
             
-        elif inter.custom_id == "modal_register":
-            await inter.response.defer(ephemeral=True)
-            payload = {
-                "tournament_id": TOURNAMENT_ID,
-                "discord_user_id": str(inter.author.id),
-                "discord_name": inter.author.display_name,
-                "in_game_name": inter.text_values["in_game_name"],
-                "game_id": inter.text_values["game_id"],
-                "team_name": inter.text_values.get("team_name", "")
-            }
-            try:
-                async with aiohttp.ClientSession() as session:
-                    async with session.post(f"{API_BASE_URL}/discord/register", json=payload) as resp:
-                        if resp.status == 200:
-                            embed = disnake.Embed(title="✅ สมัครสำเร็จ!", color=0x2ECC71)
-                            embed.description = f"**ชื่อในเกม:** {payload['in_game_name']}\n**Game ID:** {payload['game_id']}\n\nกรุณารอแอดมินตรวจสอบและยืนยันครับ 🙏"
-                            await inter.edit_original_response(embed=embed)
-                        else:
-                            data = await resp.json()
-                            message = data.get("detail") or data.get("error", {}).get("message") or "Unknown error"
-                            await inter.edit_original_response(content=f"❌ **สมัครไม่สำเร็จ:** {message}")
-            except Exception:
-                await inter.edit_original_response(content="⚠️ Error connecting to backend.")
+        # Note: modal_register was deprecated in Phase 2 in favor of Web Profile Registration
 
     @commands.slash_command(description="Submit match screenshot as evidence for referees")
     async def submit_evidence(
         self, 
         inter: disnake.ApplicationCommandInteraction, 
         round_name: str = commands.Param(choices=["Round 1", "Round 2", "Round 3", "Round 4", "Finals"]),
-        evidence: disnake.Attachment = commands.Param(description="อัปโหลดรูปภาพ Screenshot ผลการแข่ง")
+        evidence: disnake.Attachment = commands.Param(description="อัปโหลดรูปภาพ Screenshot ผลการแข่ง"),
+        tournament_id: str = commands.Param(default=None, description="รหัสทัวร์นาเมนต์ (เลือกข้ามได้)")
     ):
         await inter.response.defer(ephemeral=True)
+        
+        tid = tournament_id or DEFAULT_TOURNAMENT_ID
         
         if not evidence.content_type or not evidence.content_type.startswith("image/"):
             await inter.edit_original_response(content="❌ กรุณาอัปโหลดไฟล์รูปภาพเท่านั้นครับ (PNG, JPG)")
@@ -325,7 +322,7 @@ class PlayerCog(commands.Cog):
         evidence_uri = evidence.url
         
         payload = {
-            "tournament_id": TOURNAMENT_ID,
+            "tournament_id": tid,
             "discord_user_id": discord_user_id,
             "round_name": round_name,
             "placement": 0,
@@ -352,7 +349,7 @@ class PlayerCog(commands.Cog):
                             await evidence_channel.send(embed=admin_embed)
                     else:
                         data = await resp.json()
-                        message = data.get("detail") or data.get("error", {}).get("message") or "Unknown error"
+                        message = get_localized_error(data)
                         await inter.edit_original_response(content=f"❌ **ส่งผลไม่สำเร็จ:** {message}")
         except Exception:
             await inter.edit_original_response(content="⚠️ Error connecting to backend.")

@@ -2,9 +2,10 @@ import disnake
 from disnake.ext import commands
 import aiohttp
 import os
+from utils import get_localized_error
 
 API_BASE_URL = os.getenv("TOURNAMENT_API_URL", "http://127.0.0.1:8011")
-TOURNAMENT_ID = os.getenv("TOURNAMENT_ID", "demo_tournament_1")
+DEFAULT_TOURNAMENT_ID = os.getenv("TOURNAMENT_ID", "demo_tournament_1")
 DEFAULT_STAGE_ID = os.getenv("TOURNAMENT_STAGE_ID", "stage_1")
 
 class AdminSetup(commands.Cog):
@@ -194,8 +195,10 @@ class AdminSetup(commands.Cog):
 
     @commands.slash_command(description="Spawn the Admin Control Panel")
     @commands.has_any_role("แอดมินทัวร์นาเมนต์", "กรรมการ")
-    async def spawn_admin_panel(self, inter: disnake.ApplicationCommandInteraction):
+    async def spawn_admin_panel(self, inter: disnake.ApplicationCommandInteraction, tournament_id: str = None):
         await inter.response.defer()
+        
+        tid = tournament_id or DEFAULT_TOURNAMENT_ID
         
         embed = disnake.Embed(
             title="⚙️ ศูนย์ควบคุมแอดมิน (Admin Control Panel)",
@@ -204,10 +207,10 @@ class AdminSetup(commands.Cog):
         )
         
         view = disnake.ui.View(timeout=None)
-        view.add_item(disnake.ui.Button(label="✅ ยืนยันผู้เล่น", style=disnake.ButtonStyle.success, custom_id="admin_approve"))
-        view.add_item(disnake.ui.Button(label="🔓 เปิด/ปิด เช็คอิน", style=disnake.ButtonStyle.secondary, custom_id="admin_checkin"))
-        view.add_item(disnake.ui.Button(label="📢 ประกาศสายแข่ง", style=disnake.ButtonStyle.primary, custom_id="admin_announce_groups"))
-        view.add_item(disnake.ui.Button(label="📊 ประกาศคะแนน", style=disnake.ButtonStyle.primary, custom_id="admin_announce_leaderboard"))
+        view.add_item(disnake.ui.Button(label="✅ ยืนยันผู้เล่น", style=disnake.ButtonStyle.success, custom_id=f"admin_approve:{tid}"))
+        view.add_item(disnake.ui.Button(label="🔓 เปิด/ปิด เช็คอิน", style=disnake.ButtonStyle.secondary, custom_id=f"admin_checkin:{tid}"))
+        view.add_item(disnake.ui.Button(label="📢 ประกาศสายแข่ง", style=disnake.ButtonStyle.primary, custom_id=f"admin_announce_groups:{tid}"))
+        view.add_item(disnake.ui.Button(label="📊 ประกาศคะแนน", style=disnake.ButtonStyle.primary, custom_id=f"admin_announce_leaderboard:{tid}"))
         
         await inter.channel.send(embed=embed, view=view)
         await inter.edit_original_response(content="✅ Admin Control Panel spawned successfully.")
@@ -217,15 +220,23 @@ class AdminSetup(commands.Cog):
         if not hasattr(inter.author, "roles"):
             return
             
+        cid_full = inter.component.custom_id
+        if not cid_full:
+            return
+            
+        parts = cid_full.split(":")
+        cid = parts[0]
+        tournament_id = parts[1] if len(parts) > 1 else DEFAULT_TOURNAMENT_ID
+            
         is_admin = any(role.name in ["แอดมินทัวร์นาเมนต์", "กรรมการ"] for role in inter.author.roles)
-        if not is_admin and inter.component.custom_id.startswith("admin_"):
+        if not is_admin and cid.startswith("admin_"):
             await inter.response.send_message("❌ คุณไม่มีสิทธิ์ใช้งานปุ่มนี้!", ephemeral=True)
             return
             
-        if inter.component.custom_id == "admin_approve":
+        if cid == "admin_approve":
             await inter.response.send_modal(
                 title="✅ ยืนยันผู้เล่น (Approve Player)",
-                custom_id="modal_approve_player",
+                custom_id=f"modal_approve_player:{tournament_id}",
                 components=[
                     disnake.ui.TextInput(
                         label="Discord User ID ของผู้เล่น",
@@ -238,12 +249,12 @@ class AdminSetup(commands.Cog):
             )
             return
 
-        elif inter.component.custom_id == "admin_checkin":
+        elif cid == "admin_checkin":
             await inter.response.defer(ephemeral=True)
             try:
                 async with aiohttp.ClientSession() as session:
                     payload = {
-                        "tournament_id": TOURNAMENT_ID,
+                        "tournament_id": tournament_id,
                         "action": "open",
                         "stage_id": DEFAULT_STAGE_ID,
                     }
@@ -251,23 +262,25 @@ class AdminSetup(commands.Cog):
                         if resp.status == 200:
                             await inter.edit_original_response(content=f"✅ Check-in session has been opened.")
                         else:
-                            await inter.edit_original_response(content="❌ Failed to update check-in session.")
+                            data = await resp.json()
+                            message = get_localized_error(data)
+                            await inter.edit_original_response(content=f"❌ Failed to update check-in session: {message}")
             except Exception:
                 await inter.edit_original_response(content="⚠️ Error connecting to backend.")
             return
 
-        elif inter.component.custom_id == "admin_announce_groups":
+        elif cid == "admin_announce_groups":
             await inter.response.defer(ephemeral=True)
             await inter.edit_original_response(
                 content="⚠️ Group announcement ยังไม่เปิดใช้ จนกว่า backend จะมี endpoint ประกาศกลุ่มจากข้อมูลจริง"
             )
             return
 
-        elif inter.component.custom_id == "admin_announce_leaderboard":
+        elif cid == "admin_announce_leaderboard":
             await inter.response.defer(ephemeral=True)
             try:
                 async with aiohttp.ClientSession() as session:
-                    async with session.get(f"{API_BASE_URL}/discord/leaderboard?tournament_id={TOURNAMENT_ID}") as resp:
+                    async with session.get(f"{API_BASE_URL}/discord/leaderboard?tournament_id={tournament_id}") as resp:
                         if resp.status != 200:
                             await inter.edit_original_response(content="❌ ดึงข้อมูลตารางคะแนนจาก backend ไม่สำเร็จ")
                             return
@@ -298,17 +311,27 @@ class AdminSetup(commands.Cog):
 
     @commands.Cog.listener()
     async def on_modal_submit(self, inter: disnake.ModalInteraction):
-        if inter.custom_id == "modal_approve_player":
+        cid_full = inter.custom_id
+        if not cid_full:
+            return
+            
+        parts = cid_full.split(":")
+        cid = parts[0]
+        tournament_id = parts[1] if len(parts) > 1 else DEFAULT_TOURNAMENT_ID
+
+        if cid == "modal_approve_player":
             await inter.response.defer(ephemeral=True)
             player_id = inter.text_values["player_id"]
             try:
                 async with aiohttp.ClientSession() as session:
-                    payload = {"tournament_id": TOURNAMENT_ID, "discord_user_id": player_id}
+                    payload = {"tournament_id": tournament_id, "discord_user_id": player_id}
                     async with session.post(f"{API_BASE_URL}/discord/admin/approve-player", json=payload) as resp:
                         if resp.status == 200:
                             await inter.edit_original_response(content=f"✅ Approved player `{player_id}`!")
                         else:
-                            await inter.edit_original_response(content="❌ Failed to approve player.")
+                            data = await resp.json()
+                            message = get_localized_error(data)
+                            await inter.edit_original_response(content=f"❌ Failed to approve player: {message}")
             except Exception:
                 await inter.edit_original_response(content="⚠️ Error connecting to backend.")
 

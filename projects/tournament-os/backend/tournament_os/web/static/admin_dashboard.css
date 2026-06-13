@@ -30,7 +30,7 @@
 }
 
 body {
-  background-color: var(--bg-dark);
+  background-color: var(--bg-dark); background-image: radial-gradient(circle at top right, rgba(184, 134, 11, 0.15), transparent 40%), radial-gradient(circle at bottom left, rgba(16, 185, 129, 0.1), transparent 40%);
   color: var(--text-primary);
   font-family: var(--font-main);
   line-height: 1.5;
@@ -82,7 +82,7 @@ body {
 
 .tab-btn:hover {
   color: var(--text-primary);
-  background: var(--bg-panel);
+  background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
 }
 
 .tab-btn.active {
@@ -128,7 +128,7 @@ body {
 
 /* Panels & Cards */
 .panel {
-  background: var(--bg-panel);
+  background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
   border: 1px solid var(--border-color);
   border-radius: 12px;
   padding: 20px;

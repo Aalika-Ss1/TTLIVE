@@ -62,10 +62,14 @@ def calculate_score(score_input: ScoreInput, formula: ScoreFormula) -> ScoreResu
         placement_points = 0
         bye_points = formula.bye_points_default
     else:
-        if score_input.placement not in formula.placement_points:
-            raise DomainError("placement_not_in_formula", f"Placement {score_input.placement} is not defined in the active formula.")
-        placement_points = formula.placement_points[score_input.placement]
-        bye_points = 0
+        if score_input.placement == 0:
+            placement_points = 0
+            bye_points = 0
+        else:
+            if score_input.placement not in formula.placement_points:
+                raise DomainError("placement_not_in_formula", f"Placement {score_input.placement} is not defined in the active formula.")
+            placement_points = formula.placement_points[score_input.placement]
+            bye_points = 0
 
     total_points = placement_points + score_input.bonus_points + bye_points - score_input.penalty_points
 

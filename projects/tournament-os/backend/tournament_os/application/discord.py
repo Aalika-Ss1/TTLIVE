@@ -143,11 +143,64 @@ class DiscordIntegrationService:
             ),
         )
 
-    def submit_score_from_discord(self) -> None:
-        raise DomainError(
-            "discord_score_submission_not_ready",
-            "Discord score submission must use backend round, group, and score services before it is enabled.",
+    def submit_score_from_discord(
+        self,
+        tournament_id: str,
+        discord_user_id: str,
+        round_name: str,
+        placement: int,
+        kills: int,
+        evidence_uri: str | None = None,
+    ) -> dict[str, object]:
+        registration = self._registration_for_discord(tournament_id, discord_user_id)
+        if registration is None:
+            raise DomainError("registration_not_found", "Registration was not found.")
+
+        # Find the active stage, group, and round
+        stage_id = None
+        group_id = None
+        round_id = None
+        for stage in GroupQueryService(self.session).public_groups(tournament_id):
+            for group in stage["groups"]:
+                for participant in group["participants"]:
+                    if participant["registration_id"] == registration.id:
+                        stage_id = str(stage["id"])
+                        group_id = str(group["id"])
+                        for r in group["rounds"]:
+                            if r["name"].lower() == round_name.lower():
+                                round_id = str(r["id"])
+                                break
+                        break
+                if stage_id:
+                    break
+            if stage_id:
+                break
+
+        if not round_id or not group_id or not stage_id:
+            raise DomainError("round_not_found", f"Player is not assigned to a group or round '{round_name}' was not found.")
+
+        from tournament_os.application.scoring import ScoreEntryService
+        from tournament_os.schemas.scoring import ScoreCreateItem
+
+        score = ScoreEntryService(self.session).create_score(
+            tournament_id=tournament_id,
+            stage_id=stage_id,
+            group_id=group_id,
+            round_id=round_id,
+            payload=ScoreCreateItem(
+                registration_id=registration.id,
+                placement=placement,
+                bonus_points=0,  # Kills are bonus points? If so, we should handle kills.
+                penalty_points=0,
+                evidence_uri=evidence_uri,
+            ),
+            submitted_by_user_id=registration.user_id,
         )
+        
+        # In discord flow, immediately transition to SUBMITTED state
+        ScoreEntryService(self.session).submit_score(score.id, actor_user_id=registration.user_id)
+
+        return {"status": "success", "score_id": score.id}
 
     def _registration_for_discord(self, tournament_id: str, discord_user_id: str) -> Registration | None:
         return self.session.scalar(

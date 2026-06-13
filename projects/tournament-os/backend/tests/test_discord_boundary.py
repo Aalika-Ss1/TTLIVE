@@ -74,11 +74,28 @@ class DiscordBoundaryTests(unittest.TestCase):
         self.assertNotIn("contact_method", status)
         self.assertNotIn("12345", status.values())  # Discord ID shouldn't be bare in the status unless specifically requested, but it's not a value
 
-    def test_discord_score_submit_is_disabled(self) -> None:
+    def test_discord_score_submit_fails_when_not_assigned(self) -> None:
+        # Register player via discord
+        reg = self.service.register_player(
+            tournament_id=self.tournament.id,
+            discord_user_id="12345",
+            discord_name="TestUser",
+            in_game_name="InGameTest",
+            game_id="UID123"
+        )
+        self.session.flush()
+
         with self.assertRaises(DomainError) as context:
-            self.service.submit_score_from_discord()
+            self.service.submit_score_from_discord(
+                tournament_id=self.tournament.id,
+                discord_user_id="12345",
+                round_name="Round 1",
+                placement=1,
+                kills=5,
+                evidence_uri="https://example.com/image.png"
+            )
             
-        self.assertEqual(context.exception.code, "discord_score_submission_not_ready")
+        self.assertEqual(context.exception.code, "round_not_found")
 
     def test_leaderboard_returns_no_mock_data(self) -> None:
         leaderboard = self.service.leaderboard(self.tournament.id)

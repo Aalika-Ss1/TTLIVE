@@ -12,16 +12,46 @@
         <h1>{{ tournament.name }}</h1>
         <span>{{ tournament.status.replace("_", " ").title() }}</span>
       </header>
-      <ol>
-        {% for row in leaderboard %}
-        <li>
-          <span class="stream-rank">{{ row.rank }}</span>
-          <strong>{{ row.display_name }}</strong>
-          <em>{{ row.total_points }} pts</em>
-        </li>
-        {% endfor %}
-      </ol>
+      
+      <!-- SCENE 1: Leaderboard -->
+      <div id="scene-leaderboard" class="stream-scene active">
+        <ol>
+          {% for row in leaderboard %}
+          <li>
+            <span class="stream-rank">{{ row.rank }}</span>
+            <strong>{{ row.display_name }}</strong>
+            <em>{{ row.total_points }} pts</em>
+          </li>
+          {% endfor %}
+        </ol>
+      </div>
+
+      <!-- SCENE 2: Lobby Results (Placeholder) -->
+      <div id="scene-lobby-results" class="stream-scene">
+        <h2 style="text-align:center; color:#87e4d8; margin-top:40px; font-size:36px;">⚔️ Match Results ⚔️</h2>
+        <p style="text-align:center; color:#ccc; font-size:20px;">(Live lobby standings will be displayed here)</p>
+      </div>
+
+      <!-- SCENE 3: Qualified Players (Placeholder) -->
+      <div id="scene-qualified" class="stream-scene">
+        <h2 style="text-align:center; color:#ffcc73; margin-top:40px; font-size:36px;">⭐ Qualified Players ⭐</h2>
+        <p style="text-align:center; color:#ccc; font-size:20px;">(Advancing players will be listed here)</p>
+      </div>
+
+      <!-- SCENE 4: Player Interview -->
+      <div id="scene-interview" class="stream-scene" style="margin-top: 40vh; background: linear-gradient(90deg, rgba(8,127,122,0.95) 0%, rgba(10,24,29,0.85) 100%); padding: 24px 32px; border-radius: 12px; border-left: 8px solid #87e4d8; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+        <h2 style="margin:0; font-size:28px; color:#fff; text-transform:uppercase; letter-spacing:2px;">🎤 Live Interview</h2>
+        <p style="margin:8px 0 0; color:#ffcc73; font-size:42px; font-weight:900;">Player Name</p>
+      </div>
+
     </main>
+    
+    <!-- Emergency Overlay -->
+    <div id="emergency-overlay" class="emergency-overlay">
+      <h1>TECHNICAL DIFFICULTIES</h1>
+      <p style="color: white; font-size: 24px; font-weight: bold; margin-top: 20px; text-shadow: 0 0 10px black; letter-spacing: 2px;">PLEASE STAND BY</p>
+    </div>
+
     <script>
       console.log("[SSE] Connecting to real-time events...");
       const eventSource = new EventSource('/web/stream-events');
@@ -32,12 +62,22 @@
       });
 
       eventSource.addEventListener('scene_switch', (event) => {
-        // Here we could handle hiding/showing the leaderboard based on scene
         console.log("[SSE] Scene Switch:", event.data);
+        const targetScene = event.data.trim();
+        document.querySelectorAll('.stream-scene').forEach(el => el.classList.remove('active'));
+        const activeEl = document.getElementById('scene-' + targetScene);
+        if (activeEl) {
+          activeEl.classList.add('active');
+        }
       });
       
       eventSource.addEventListener('emergency', (event) => {
-        document.body.innerHTML = '<h1 style="color:red; text-align:center; margin-top:20vh; font-size:4rem; background:black;">TECHNICAL DIFFICULTIES</h1>';
+        console.log("[SSE] EMERGENCY TRIGGERED:", event.data);
+        const emergencyEl = document.getElementById('emergency-overlay');
+        if (emergencyEl) {
+          // Toggle emergency state on/off
+          emergencyEl.classList.toggle('active');
+        }
       });
     </script>
   </body>

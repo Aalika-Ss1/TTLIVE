@@ -15,7 +15,12 @@
     <div class="brand-title">Golden Spatula <span>OS</span></div>
     
     <nav class="nav-tabs" id="mainTabs">
-      <button class="tab-btn active" data-target="tab-control">Control Center</button>
+      <button class="tab-btn active" data-target="tab-control">
+        Control Center
+        {% if scores|length > 0 %}
+        <span style="background:var(--color-danger);color:white;padding:2px 8px;border-radius:12px;font-size:11px;margin-left:6px;font-weight:bold;">{{ scores|length }}</span>
+        {% endif %}
+      </button>
       <button class="tab-btn" data-target="tab-caster">Caster Panel</button>
       <button class="tab-btn" data-target="tab-settings">Setup & Settings</button>
     </nav>
@@ -31,13 +36,21 @@
         <section class="panel">
           <h2 class="panel-title">Verification Queue</h2>
           <div id="verification-queue">
-            <!-- Simulated Queue Items -->
-            {% for score in scores[:3] %}
-            <div class="queue-item {% if loop.index == 1 %}warning{% endif %}" data-score-id="{{ score.id }}">
+            <!-- Real Queue Items -->
+            {% for score in scores %}
+            <div class="queue-item" data-score-id="{{ score.id }}">
               <div class="queue-info">
-                <h4>Player: {{ score.registration_id[-4:] }}</h4>
-                <p>Reported Placement: #{{ score.placement }}</p>
-                {% if loop.index == 1 %}<p style="color:var(--color-danger);font-weight:bold;font-size:11px;margin-top:4px;">Low OCR Confidence</p>{% endif %}
+                <h4>Player: {{ score.display_name }}</h4>
+                <p style="font-size:11px; color:var(--text-secondary);">ID: {{ score.registration_id|string|truncate(8, True, '') }}...</p>
+                <p style="margin-top:4px;">Reported Placement: #{{ score.placement }}</p>
+                {% if score.evidence_uri %}
+                <div style="margin-top:8px;">
+                  <a href="{{ score.evidence_uri }}" target="_blank">
+                    <img src="{{ score.evidence_uri }}" alt="Evidence" style="max-height:100px; border-radius:4px; border:1px solid var(--border-color);">
+                  </a>
+                </div>
+                {% endif %}
+                <p style="font-size:11px; color:var(--text-secondary); margin-top:8px;">Status: {{ score.status.replace('_', ' ').title() }}</p>
               </div>
               <div class="queue-actions">
                 <button class="btn btn-approve" onclick="handleAction('approve', '{{ score.id }}')">
@@ -74,6 +87,15 @@
     <!-- TAB 2: Caster Control Panel -->
     <div id="tab-caster" class="tab-pane">
       <div class="panel" style="max-width:800px; margin:0 auto;">
+        
+        <h2 class="panel-title">Stream Overlay (OBS / TikTok Live Studio)</h2>
+        <p style="color:var(--text-secondary); font-size:14px; margin-bottom:12px;">Copy URL ด้านล่างนี้ส่งให้คนไลฟ์ เพื่อนำไปเพิ่มเป็น Browser Source ใน OBS หรือ TikTok Live Studio</p>
+        <div style="display:flex; gap:8px; margin-bottom:24px;">
+          <input type="text" id="overlay-url" readonly style="flex:1; padding:10px; background:rgba(0,0,0,0.2); border:1px solid var(--border-color); color:#fff; border-radius:6px;" value="">
+          <button class="btn" style="padding:0 16px; background:var(--color-success); border:none; color:#fff; border-radius:6px; cursor:pointer; font-weight:bold;" onclick="copyOverlayUrl()">📋 Copy URL</button>
+        </div>
+        <hr style="border:none; border-top:1px solid var(--border-color); margin:24px 0;">
+
         <h2 class="panel-title">Scene Switcher (Stream Deck)</h2>
         <div class="caster-grid" style="margin-bottom: 24px;">
           <button class="btn btn-scene active" onclick="switchScene(this, 'leaderboard')">
@@ -131,15 +153,27 @@
         <section class="panel">
           <h2 class="panel-title">Registration & Grouping</h2>
           <div style="display:flex; flex-direction:column; gap:16px;">
+            {% for reg in registrations %}
             <div style="padding:12px; border:1px solid var(--border-color); border-radius:8px; display:flex; justify-content:space-between; align-items:center;">
               <div>
-                <strong>Player A</strong> <span style="color:var(--text-secondary);font-size:12px;">(Pending)</span>
+                <strong>{{ reg.display_name }}</strong> <span style="color:var(--text-secondary);font-size:12px;">({{ reg.status.title() }})</span>
+                <div style="font-size: 12px; color: #5865F2; margin-top: 4px; display: flex; align-items: center; gap: 4px;" title="Discord User ID">
+                  <svg width="14" height="14" viewBox="0 0 127.14 96.36" fill="currentColor">
+                    <path d="M107.7 8.07A105.15 105.15 0 0 0 81.47 0a72.06 72.06 0 0 0-3.36 6.83 97.68 97.68 0 0 0-29.08 0 72.37 72.37 0 0 0-3.36-6.83 105.15 105.15 0 0 0-26.23 8.07C2.04 33.84-2.43 59 1.15 83.74a105.43 105.43 0 0 0 32.14 16.14 74.34 74.34 0 0 0 6.83-11.13 70 70 0 0 1-10.87-5.18 51.5 51.5 0 0 0 2.14-1.61c21.84 10.15 45.45 10.15 67.23 0a51.5 51.5 0 0 0 2.14 1.61 70 70 0 0 1-10.87 5.18 74.34 74.34 0 0 0 6.83 11.13 105.43 105.43 0 0 0 32.14-16.14c4.13-28-2.61-49.9-20.93-75.67Zm-67.92 63.8c-6.83 0-12.44-6.3-12.44-14s5.49-14 12.44-14 12.56 6.3 12.44 14-5.49 14-12.44 14Zm47.58 0c-6.83 0-12.44-6.3-12.44-14s5.49-14 12.44-14 12.56 6.3 12.44 14-5.49 14-12.44 14Z"/>
+                  </svg>
+                  {{ reg.contact_value }}
+                </div>
               </div>
               <div style="display:flex; gap:8px;">
+                {% if reg.status == 'pending' %}
                 <button class="btn" style="padding:6px 12px; background:var(--color-success); border:none; border-radius:4px; color:#fff;" onclick="this.parentElement.parentElement.style.opacity='0.5'">Approve</button>
                 <button class="btn" style="padding:6px 12px; background:var(--color-danger); border:none; border-radius:4px; color:#fff;" onclick="this.parentElement.parentElement.style.opacity='0.5'">Reject</button>
+                {% endif %}
               </div>
             </div>
+            {% else %}
+            <p style="color:var(--text-secondary); font-size:14px; text-align:center; padding:10px;">No registrations yet.</p>
+            {% endfor %}
             
             <hr style="border:none; border-top:1px solid var(--border-color); margin:8px 0;">
             
@@ -154,6 +188,21 @@
 
   <!-- Vanilla JS Application Logic -->
   <script>
+    // 0. Initialize Overlay URL
+    document.addEventListener('DOMContentLoaded', () => {
+      const urlInput = document.getElementById('overlay-url');
+      if (urlInput) {
+        urlInput.value = window.location.origin + '/web/tournaments/{{ tournament.public_slug }}/stream';
+      }
+    });
+
+    function copyOverlayUrl() {
+      const urlInput = document.getElementById('overlay-url');
+      navigator.clipboard.writeText(urlInput.value).then(() => {
+        alert('Copied Overlay URL! สามารถส่งให้คนไลฟ์ได้เลยครับ');
+      });
+    }
+
     // 1. Tab Switching Logic
     const tabBtns = document.querySelectorAll('.tab-btn');
     const tabPanes = document.querySelectorAll('.tab-pane');
