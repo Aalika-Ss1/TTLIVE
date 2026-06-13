@@ -1,4 +1,4 @@
-﻿﻿<!doctype html>
+<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
@@ -98,20 +98,159 @@
 
     /* Status Strip */
     .status-strip {
-      display: flex; gap: 24px;
-      margin-top: 20px; padding-top: 20px;
-      border-top: 1px solid var(--border);
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-top: 24px;
+      background: transparent;
+      border-top: none;
     }
-    .status-item {}
+    .status-strip .status-item {
+      background: var(--bg-card) !important;
+      border: 1px solid var(--border) !important;
+      border-radius: var(--radius) !important;
+      padding: 16px 20px !important;
+      min-height: 82px !important;
+      display: flex !important;
+      flex-direction: column !important;
+      justify-content: center !important;
+    }
+    .status-strip .status-label,
+    .status-strip .status-value {
+      background: transparent !important;
+      padding: 0 !important;
+      min-height: auto !important;
+    }
     .status-label {
-      font-size: 10px; font-weight: 800;
-      text-transform: uppercase; letter-spacing: .8px;
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: .8px;
       color: var(--text-muted);
     }
     .status-value {
-      font-size: 22px; font-weight: 900; margin-top: 4px;
+      font-size: 24px;
+      font-weight: 900;
+      margin-top: 6px;
+      color: #fff;
     }
     .status-value.live { color: var(--accent); }
+
+    /* Premium Empty State */
+    .premium-empty-state {
+      padding: 60px 40px;
+      text-align: center;
+      background: rgba(17, 32, 48, 0.45);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: var(--radius);
+      backdrop-filter: blur(12px);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+      max-width: 800px;
+      margin: 40px auto;
+    }
+    .premium-empty-state .empty-icon {
+      font-size: 56px;
+      margin-bottom: 24px;
+      animation: pulseGlow 2s infinite alternate;
+      display: inline-block;
+    }
+    @keyframes pulseGlow {
+      from { transform: scale(1); filter: drop-shadow(0 0 10px rgba(20,200,180,0.3)); }
+      to { transform: scale(1.08); filter: drop-shadow(0 0 20px rgba(20,200,180,0.6)); }
+    }
+    .premium-empty-state h2 {
+      font-size: 26px;
+      font-weight: 800;
+      color: #fff;
+      margin-bottom: 16px;
+      letter-spacing: -.5px;
+    }
+    .premium-empty-state p {
+      font-size: 15px;
+      color: var(--text-muted);
+      line-height: 1.6;
+      max-width: 600px;
+      margin: 0 auto 32px;
+    }
+    .setup-steps {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-bottom: 36px;
+    }
+    .setup-step {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px;
+      text-align: center;
+      transition: all 0.3s;
+    }
+    .setup-step.done {
+      border-color: rgba(40, 216, 138, 0.3);
+      background: rgba(40, 216, 138, 0.04);
+    }
+    .setup-step.active {
+      border-color: var(--accent);
+      background: var(--accent-soft);
+      box-shadow: 0 0 15px var(--accent-glow);
+    }
+    .setup-step .step-num {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.05);
+      color: var(--text-muted);
+      display: inline-grid;
+      place-items: center;
+      font-size: 12px;
+      font-weight: 900;
+      margin-bottom: 8px;
+    }
+    .setup-step.done .step-num {
+      background: var(--green);
+      color: #0c1812;
+    }
+    .setup-step.active .step-num {
+      background: var(--accent);
+      color: #08111a;
+    }
+    .setup-step .step-text {
+      display: block;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-muted);
+    }
+    .setup-step.done .step-text, .setup-step.active .step-text {
+      color: #fff;
+    }
+    .empty-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 700;
+      transition: all 0.2s;
+    }
+    .empty-btn.primary {
+      background: var(--accent);
+      color: #08111a;
+    }
+    .empty-btn.primary:hover {
+      background: #18d8c4;
+      transform: translateY(-1px);
+    }
+    .empty-btn.secondary {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--border);
+      color: #fff;
+    }
+    .empty-btn.secondary:hover {
+      background: rgba(255,255,255,0.1);
+      transform: translateY(-1px);
+    }
 
     /* Shell */
     .page-shell {
@@ -273,12 +412,22 @@
     /* Empty */
     .empty-msg { padding: 40px; text-align: center; color: var(--text-muted); font-size: 13px; }
 
+    /* Empty State */
+    .empty-box {
+      padding: 40px 20px; text-align: center;
+      background: rgba(255,255,255,.02);
+      border: 1px dashed var(--border);
+      border-radius: 8px; color: var(--text-muted);
+      margin: 16px; font-size: 14px;
+    }
+    .empty-box .icon { font-size: 32px; margin-bottom: 12px; opacity: 0.6; }
+
     @media (max-width: 860px) {
       .hero { padding: 32px 20px 16px; }
       .page-shell { padding: 16px 20px 48px; }
       .app-header { padding: 0 16px; }
       .content-grid { grid-template-columns: 1fr; }
-      .status-strip { flex-wrap: wrap; gap: 16px; }
+      .status-strip { grid-template-columns: 1fr; gap: 12px; }
     }
   </style>
 </head>
@@ -292,12 +441,12 @@
     <a href="#groups">Groups</a>
     <a href="/web/tournaments/{{ tournament.public_slug }}/stream">Stream View</a>
   </nav>
-  <a class="admin-link" href="/web/admin/tournaments/{{ tournament.public_slug }}">âš™ Admin Console</a>
+  <a class="admin-link" href="/web/admin/tournaments/{{ tournament.public_slug }}">⚙️ Admin Console</a>
 </header>
 
 <!-- Hero -->
 <div class="hero" id="overview">
-  <div class="hero-game-tag">ðŸŽ® {{ tournament.game }}</div>
+  <div class="hero-game-tag">🎮 {{ tournament.game }}</div>
   <h1>{{ tournament.name }}</h1>
   <p style="margin-top:10px;font-size:15px;color:var(--text-muted);max-width:600px;">
     Official results, group standings, and live leaderboard for players, viewers, and casters.
@@ -325,6 +474,31 @@
 </div>
 
 <div class="page-shell">
+  {% if stages | length == 0 %}
+  <div class="premium-empty-state">
+    <div class="empty-icon">⏳</div>
+    <h2>เตรียมพบกับการแข่งขันเร็วๆ นี้</h2>
+    <p>ขณะนี้ทัวร์นาเมนต์อยู่ในขั้นตอนการตั้งค่าระบบและเปิดรับสมัครผู้เล่น ทีมงานกำลังอัปเดตข้อมูลการแบ่งกลุ่มและตารางการแข่งขัน</p>
+    <div class="setup-steps">
+      <div class="setup-step done">
+        <span class="step-num">1</span>
+        <span class="step-text">สร้างทัวร์นาเมนต์เสร็จสิ้น</span>
+      </div>
+      <div class="setup-step active">
+        <span class="step-num">2</span>
+        <span class="step-text">เปิดรับสมัคร &amp; จัดกลุ่มผู้เล่น</span>
+      </div>
+      <div class="setup-step">
+        <span class="step-num">3</span>
+        <span class="step-text">เริ่มการแข่งขัน &amp; อัปเดตคะแนนสด</span>
+      </div>
+    </div>
+    <div style="margin-top: 32px; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
+      <a class="empty-btn primary" href="/web/tournaments/{{ tournament.id }}/profile">👤 สมัครแข่งขันที่นี่</a>
+      <a class="empty-btn secondary" href="/web/admin/tournaments/{{ tournament.public_slug }}">⚙️ คอนโซลผู้ดูแล</a>
+    </div>
+  </div>
+  {% else %}
   <!-- Main content grid -->
   <div class="content-grid">
 
@@ -359,7 +533,12 @@
               <td class="score-pts">{{ row.total_points }}</td>
             </tr>
             {% else %}
-            <tr><td colspan="5" style="padding:40px;text-align:center;color:var(--text-muted)">Scores not yet approved.</td></tr>
+          <tr><td colspan="5" style="padding:0; border:none;">
+            <div class="empty-box">
+              <div class="icon">🏆</div>
+              <div>Scores not yet approved. Waiting for match results.</div>
+            </div>
+          </td></tr>
             {% endfor %}
           </tbody>
         </table>
@@ -375,7 +554,7 @@
           <span class="meta">{{ final_stage.name if final_stage else "Pending" }}</span>
         </div>
         {% if winner %}
-        <div class="winner-crown">ðŸ†</div>
+      <div class="winner-crown">🏆</div>
         <div class="winner-name">{{ winner.display_name }}</div>
         <div class="winner-pts">{{ winner.total_points }} points</div>
         {% else %}
@@ -400,7 +579,12 @@
             <span class="badge badge-{{ stage.status }}">{{ stage.status }}</span>
           </li>
           {% else %}
-          <li style="border:none;padding:20px 0;justify-content:center;color:var(--text-muted);font-size:13px;">No stages yet.</li>
+        <li style="border:none;padding:0;">
+          <div class="empty-box" style="margin:0; width:100%;">
+            <div class="icon">📅</div>
+            <div>No stages configured yet.</div>
+          </div>
+        </li>
           {% endfor %}
         </ol>
       </div>
@@ -437,9 +621,13 @@
       {% endfor %}
     </div>
     {% else %}
-    <div class="empty-msg">Groups not yet published.</div>
+    <div class="empty-box">
+      <div class="icon">🎮</div>
+      <div>Groups not yet published or created.</div>
+    </div>
     {% endfor %}
   </section>
+  {% endif %}
 </div>
 
 <!-- Real-time Updates (SSE) -->

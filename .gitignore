@@ -20,6 +20,7 @@ __pycache__/
 .venv/
 venv/
 *.db
+*.log
 
 # System
 Thumbs.db
@@ -29,3 +30,4 @@ Thumbs.db
 tmp/
 temp/
 *.tmp
+projects/tournament-os/backend/tmp_screenshots/

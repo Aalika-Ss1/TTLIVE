@@ -23,7 +23,9 @@ from tournament_os.models.competition import (
     Stage,
 )
 from tournament_os.models.operations import AuditLog
+from tournament_os.models.identity import User
 from tournament_os.models.tournament import Tournament
+from tournament_os.schemas.registration import RegistrationCreate
 
 router = APIRouter(tags=["web"])
 
@@ -125,14 +127,29 @@ def web_player_profile_post(
     discord_user_id = request.session.get("discord_user_id")
     if not discord_user_id:
         raise DomainError("unauthorized", "You must be logged in with Discord to register.")
-        
-    RegistrationService(db_session).register_player(
+
+    user = db_session.get(User, discord_user_id)
+    if user is None:
+        user = User(
+            id=discord_user_id,
+            display_name=request.session.get("discord_username") or in_game_name,
+            role="player",
+        )
+        db_session.add(user)
+        db_session.flush()
+
+    RegistrationService(db_session).submit_registration(
         tournament_id=tournament_id,
-        display_name=in_game_name,
-        game_uid=game_uid,
-        contact_method="discord",
-        contact_value=discord_user_id
+        payload=RegistrationCreate(
+            user_id=discord_user_id,
+            display_name=in_game_name,
+            in_game_name=in_game_name,
+            game_uid=game_uid,
+            contact_method="discord",
+            contact_value=discord_user_id,
+        ),
     )
+    db_session.commit()
     return RedirectResponse(url=f"/web/tournaments/{tournament_id}/profile", status_code=303)
 
 
@@ -307,3 +324,52 @@ def web_stream(
             "leaderboard": leaderboard[:8],
         },
     )
+
+from fastapi import UploadFile, File
+import shutil
+
+@router.get('/web/tournaments/{tournament_id}/submit', response_class=HTMLResponse)
+def web_submit_score_get(
+    tournament_id: str,
+    request: Request,
+    session: Session = Depends(get_session)
+) -> HTMLResponse:
+    tournament = session.scalar(select(Tournament).where(Tournament.id == tournament_id))
+    if tournament is None:
+        raise DomainError('tournament_not_found', 'Tournament was not found.')
+    groups = GroupQueryService(session).public_groups(tournament.id)
+    return templates.TemplateResponse(
+        request,
+        'submit_score.html',
+        {
+            'title': f'Submit Score - {tournament.name}',
+            'tournament': tournament,
+            'groups': groups,
+        },
+    )
+
+@router.post('/web/tournaments/{tournament_id}/submit')
+async def web_submit_score_post(
+    tournament_id: str,
+    request: Request,
+    group_id: str = Form(...),
+    evidence: UploadFile = File(...),
+    session: Session = Depends(get_session)
+):
+    import uuid
+    # Save uploaded file
+    file_id = str(uuid.uuid4())
+    ext = evidence.filename.split('.')[-1]
+    filename = f"{file_id}.{ext}"
+    upload_dir = Path(__file__).resolve().parents[1] / 'web' / 'static' / 'uploads'
+    upload_dir.mkdir(parents=True, exist_ok=True)
+    file_path = upload_dir / filename
+    
+    with open(file_path, "wb") as buffer:
+        shutil.copyfileobj(evidence.file, buffer)
+        
+    # TODO: Create Score/Evidence record in database here
+    # Placeholder: Redirect back to tournament page with success
+    
+    return RedirectResponse(url=f"/web/tournaments/{tournament_id}/submit?success=1", status_code=303)
+

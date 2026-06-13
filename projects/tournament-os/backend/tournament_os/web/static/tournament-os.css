@@ -518,3 +518,144 @@ tr:last-child td {
   80% { transform: translate(5px, -5px) }
   100% { transform: translate(0) }
 }
+
+/* OBS Stream UI Extensions */
+body.stream-body {
+  background: transparent !important;
+  color: #fff;
+  font-family: 'Inter', sans-serif;
+  overflow: hidden;
+}
+
+.stream-board {
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  padding: 28px;
+  width: 100vw !important;
+  height: 100vh !important;
+  margin: 0 !important;
+  border: none !important;
+  border-radius: 0 !important;
+  background: rgba(10, 24, 29, 0.88) !important;
+  position: relative;
+}
+
+.stream-content {
+  position: relative;
+  flex: 1;
+  width: 100%;
+  margin-top: 20px;
+}
+
+.stream-scene {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: auto;
+  height: auto;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+  transform: translateY(20px);
+}
+
+.stream-scene.active {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
+#scene-leaderboard {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: auto;
+  width: 400px;
+  max-width: 100%;
+  height: auto;
+  background: rgba(10, 24, 29, 0.85);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(135, 228, 216, 0.3);
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+}
+
+#scene-leaderboard header h1 {
+  color: #fff;
+  font-size: 24px;
+  margin: 0 0 5px 0;
+  text-transform: uppercase;
+}
+
+#scene-leaderboard header span {
+  color: #87e4d8;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+#scene-leaderboard ol {
+  list-style: none;
+  padding: 0;
+  margin: 20px 0 0 0;
+}
+
+#scene-leaderboard li {
+  display: flex;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+#scene-leaderboard li:last-child {
+  border-bottom: none;
+}
+
+.stream-rank {
+  width: 30px;
+  color: #ffcc73;
+  font-weight: bold;
+  font-size: 18px;
+}
+
+#scene-leaderboard strong {
+  flex: 1;
+  font-size: 16px;
+}
+
+#scene-leaderboard em {
+  font-style: normal;
+  color: #87e4d8;
+  font-weight: bold;
+}
+
+.emergency-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(255, 0, 0, 0.8);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s;
+}
+
+.emergency-overlay.active {
+  opacity: 1;
+}
+
+.emergency-overlay h1 {
+  font-size: 80px;
+  color: #fff;
+  margin: 0;
+  text-transform: uppercase;
+}

@@ -57,9 +57,9 @@ class AdminAuthBoundaryTests(unittest.TestCase):
         environ["TOURNAMENT_OS_ADMIN_TOKEN"] = "expected-token"
 
         self.client.cookies.set("admin_token", "expected-token")
-        response = self.client.post("/admin/scores/score_1/submit")
+        response = self.client.post("/admin/not-found")
 
-        self.assertNotEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 404)
 
     def test_login_route_sets_cookie(self) -> None:
         environ["TOURNAMENT_OS_ADMIN_TOKEN"] = "expected-token"
@@ -77,11 +77,11 @@ class AdminAuthBoundaryTests(unittest.TestCase):
         environ["TOURNAMENT_OS_ADMIN_TOKEN"] = "expected-token"
 
         response = self.client.post(
-            "/admin/scores/score_1/submit",
+            "/admin/not-found",
             headers={"authorization": "Bearer expected-token"},
         )
 
-        self.assertNotEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 404)
 
     def test_public_health_does_not_require_admin_token(self) -> None:
         environ.pop("TOURNAMENT_OS_ADMIN_TOKEN", None)

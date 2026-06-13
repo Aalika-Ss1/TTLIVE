@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Submit Score - {{ tournament.name }}</title>
+    <link rel="stylesheet" href="/static/tournament-os.css">
+  </head>
+  <body>
+    <header class="app-header">
+      <div class="brand">Tournament OS</div>
+      <nav class="top-nav">
+        <a href="/web/tournaments/{{ tournament.public_slug }}">Back</a>
+      </nav>
+    </header>
+
+    <main class="page-shell">
+      <div class="title-block">
+        <h1>Submit Match Result</h1>
+        <p>Upload a screenshot of your game's final scoreboard. Our AI (or Admin) will verify the result.</p>
+      </div>
+
+      <div class="panel" style="max-width: 600px; margin: 40px auto; padding: 32px;">
+        <form method="POST" action="/web/tournaments/{{ tournament.id }}/submit" enctype="multipart/form-data" style="display:flex; flex-direction:column; gap:20px;">
+          
+          <div>
+            <label style="display:block; margin-bottom:8px; font-weight:bold; color:var(--text-secondary);">Select Group/Lobby</label>
+            <select name="group_id" style="width:100%; padding:12px; background:var(--bg); border:1px solid var(--border-color); border-radius:8px; font-size:16px;">
+              {% for group in groups %}
+              <option value="{{ group.id }}">{{ group.name }}</option>
+              {% else %}
+              <option value="" disabled selected>No active groups found</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div>
+            <label style="display:block; margin-bottom:8px; font-weight:bold; color:var(--text-secondary);">Upload Screenshot (Evidence)</label>
+            <input type="file" name="evidence" accept="image/png, image/jpeg" required style="width:100%; padding:12px; background:var(--bg); border:1px dashed var(--border-color); border-radius:8px; font-size:16px;">
+          </div>
+
+          <button type="submit" class="btn" style="padding: 16px; background:var(--accent); color:#fff; font-size:18px; font-weight:bold; border:none; border-radius:8px; cursor:pointer;">
+            Submit Result
+          </button>
+        </form>
+      </div>
+    </main>
+  </body>
+</html>

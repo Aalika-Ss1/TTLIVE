@@ -8,7 +8,7 @@ Make the PostgreSQL path repeatable before the system is opened for internal use
 ## Current State
 
 - `backend/docker-compose.yml` provides PostgreSQL 16.
-- `.env.example` points to `postgresql+psycopg://tournament_os:tournament_os@localhost:5432/tournament_os`.
+- `.env.example` points to `postgresql+psycopg://tournament_os:tournament_os@localhost:5433/tournament_os`.
 - Alembic is configured under `backend/migrations/`.
 - Initial migration exists at `backend/migrations/versions/20260612_0001_initial_phase_1_schema.py`.
 - The initial migration includes the Phase 1 official write model plus read/integration tables such as `event_outbox`, `tournament_dashboard_summaries`, `leaderboard_snapshots`, `player_status_snapshots`, and `discord_message_jobs`.
@@ -45,7 +45,7 @@ Run from `E:\TTLIVE\projects\tournament-os\backend`:
 
 ```powershell
 docker compose up -d postgres
-$env:TOURNAMENT_OS_DATABASE_URL='postgresql+psycopg://tournament_os:tournament_os@localhost:5432/tournament_os'
+$env:TOURNAMENT_OS_DATABASE_URL='postgresql+psycopg://tournament_os:tournament_os@localhost:5433/tournament_os'
 alembic upgrade head
 python scripts\smoke_phase1.py
 python -m unittest discover -s tests -v
@@ -96,3 +96,4 @@ Agent B should focus on:
 5. Do not delete scratch/debug files unless the user explicitly approves cleanup or Agent A marks them safe to remove.
 
 If PostgreSQL readiness passes, the next system priority is cleanup and commit preparation.
+

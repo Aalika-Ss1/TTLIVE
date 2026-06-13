@@ -138,14 +138,56 @@
               <div>
                 <label style="display:block;margin-bottom:8px;font-size:14px;color:var(--text-secondary);">Active Ruleset</label>
                 <select style="width:100%;padding:10px;background:var(--bg-dark);border:1px solid var(--border-color);color:#fff;border-radius:6px;">
-                  <option>Group Points Qualifier</option>
+                  <option>TFT Standard (8 players/lobby)</option>
                 </select>
               </div>
             </div>
-            <div style="display:flex; gap:12px; margin-top:8px;">
-              <button class="btn btn-approve" onclick="alert('Tournament Created!')">1. Create Draft</button>
-              <button class="btn btn-scene" onclick="alert('Rules Locked!')">2. Lock Rules</button>
+            <hr style="border:none; border-top:1px solid var(--border-color); margin:8px 0;">
+            <p style="color:var(--text-secondary); font-size:14px;">Once registrations are closed and approved, generate the lobbies automatically.</p>
+            
+            <!-- Group Generation UI -->
+            <div style="background: var(--surface-strong, rgba(0,0,0,0.05)); border: 1px solid var(--border-color); border-radius: 8px; padding: 16px; margin-top: 8px;">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 16px;">
+                <div>
+                  <h3 style="margin:0 0 4px; font-size:15px;">Group Generation</h3>
+                  <p style="color:var(--text-secondary); font-size:12px; margin:0;">Select format and auto-seed approved players.</p>
+                </div>
+                <div style="display:flex; gap:8px;">
+                  <select id="group-format" style="padding:8px 12px; background:var(--bg-dark, #111); border:1px solid var(--border-color); color:#fff; border-radius:6px; font-size:13px;">
+                    <option value="16">16 Players (2 Groups of 8)</option>
+                    <option value="32">32 Players (2 Groups of 16)</option>
+                  </select>
+                  <button class="btn" style="padding:8px 16px; background:var(--accent, #087f7a); color:#fff; border:none; border-radius:6px; font-weight:bold; cursor:pointer;" onclick="generateGroups()">?? Auto Seed</button>
+                </div>
+              </div>
+              
+              <!-- Generated Groups Cards -->
+              <div class="groups-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px;">
+                {% for group in groups %}
+                <div class="group-card" style="background:var(--bg-dark, #111); border:1px solid var(--border-color); border-radius:6px; overflow:hidden;">
+                  <div style="background:rgba(0,0,0,0.2); padding:10px 12px; border-bottom:1px solid var(--border-color); display:flex; justify-content:space-between; align-items:center;">
+                    <strong style="color:var(--accent-gold-light, #ffcc73); font-size:14px;">{{ group.name }}</strong>
+                    <span style="font-size:11px; color:var(--text-secondary);">Group</span>
+                  </div>
+                  <ul style="list-style:none; margin:0; padding:0;">
+                    {% for p in group.participants %}
+                    <li style="padding:8px 12px; border-bottom:1px solid rgba(255,255,255,0.05); font-size:12px; display:flex; gap:8px; align-items:center;">
+                      <span style="color:var(--text-secondary); font-weight:900; width:16px;">{{ p.seed or loop.index }}</span>
+                      <strong style="color:#fff;">{{ p.display_name }}</strong>
+                    </li>
+                    {% else %}
+                    <li style="padding:16px; text-align:center; font-size:12px; color:var(--text-secondary); font-style:italic;">Empty Group</li>
+                    {% endfor %}
+                  </ul>
+                </div>
+                {% else %}
+                <div style="grid-column: 1 / -1; padding: 24px; text-align: center; border: 1px dashed var(--border-color); border-radius: 6px; color: var(--text-secondary); font-size: 13px;">
+                  ????????????????????????????? (No groups generated yet)
+                </div>
+                {% endfor %}
+              </div>
             </div>
+            
           </div>
         </section>
 
@@ -229,6 +271,27 @@
       fetch(`/api/admin/broadcast-test?event_type=scene_switch&message=${sceneName}`, {method:'POST'});
     }
 
+    function generateGroups() {
+      const format = document.getElementById('group-format').value;
+      if(confirm('???????????????????????????????????? ' + format + ' ?? ??????????? (??????????????????????????)')) {
+        console.log('[Admin] Requesting group generation for format: ' + format);
+        fetch('/admin/tournaments/{{ tournament.id }}/generate-groups', { 
+            method: 'POST', 
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ strategy: "random", create_check_in_sessions: true }) 
+        }).then(response => {
+            if(response.ok) {
+                alert('? ????????????????! ?????????????????????');
+                window.location.reload();
+            } else {
+                alert('? ?????????????????????????????: ?????????????????????????????????? 16 ???? 32 ??');
+            }
+        }).catch(err => {
+            alert('? API error: ' + err);
+        });
+      }
+    }
+
     function triggerEmergency() {
       if(confirm('Are you sure you want to trigger Emergency Mode? This will override the stream overlay.')) {
         console.log('[Overlay] EMERGENCY MODE ACTIVATED');
@@ -307,3 +370,5 @@
   </script>
 </body>
 </html>
+
+

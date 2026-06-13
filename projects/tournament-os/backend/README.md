@@ -34,7 +34,7 @@ python -m uvicorn tournament_os.api.main:app --host 127.0.0.1 --port 8010
 If PostgreSQL is installed another way, set:
 
 ```powershell
-$env:TOURNAMENT_OS_DATABASE_URL="postgresql+psycopg://user:password@localhost:5432/tournament_os"
+$env:TOURNAMENT_OS_DATABASE_URL="postgresql+psycopg://user:password@localhost:5433/tournament_os"
 ```
 
 For a quick local smoke run without PostgreSQL:
@@ -70,3 +70,4 @@ tournament_os/
   repositories/
   schemas/
 ```
+
