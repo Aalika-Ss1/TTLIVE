@@ -96,6 +96,52 @@ Confirm these decisions:
 16. Add public leaderboard.
 17. Add Discord, OCR, and overlay integrations later.
 
+## Current Coordination Update - 2026-06-13
+
+Do not repeat these completed lanes:
+
+- L1 Dispute Correction is done.
+- L2 Score Lifecycle is done. Scores now follow create/draft, submit, verify, approve, finalize. Direct approval from draft is no longer valid.
+- L3 Stream/Public Safety is done.
+- L4 Export is done. Admin XLSX export exists at `/admin/tournaments/{tournament_id}/exports/leaderboard.xlsx`.
+
+Latest verified tests:
+
+```powershell
+Set-Location E:\TTLIVE\projects\tournament-os\backend
+python -m unittest discover -s tests -v
+```
+
+Result:
+
+```text
+Ran 48 tests
+OK
+```
+
+Latest verified smoke flow:
+
+```powershell
+Set-Location E:\TTLIVE\projects\tournament-os\backend
+$env:TOURNAMENT_OS_DATABASE_URL='sqlite:///./tmp_smoke_phase1.db'
+python scripts\smoke_phase1.py --create-schema
+```
+
+Result:
+
+```text
+16 registrations, groups generated, qualifier scores approved, 8 players advanced, final scores approved, winner selected.
+```
+
+The temporary smoke SQLite database was removed.
+
+Next priority:
+
+1. Follow `docs/POSTGRES_READINESS_CHECKLIST.md`.
+2. Run PostgreSQL Docker + Alembic + smoke script against PostgreSQL.
+3. Record results in `AGENT_COORDINATION.md`.
+4. Cleanup scratch/debug artifacts before commit, only after confirming they are safe to remove.
+
 ## Do Not Build Yet
 
 - Payment

@@ -54,6 +54,7 @@ def accept_dispute(
         DisputeStatus.ACCEPTED,
         resolved_by_user_id=payload.resolved_by_user_id,
         resolved_note=payload.resolved_note,
+        corrected_score=payload.corrected_score,
     )
     session.commit()
     return dispute

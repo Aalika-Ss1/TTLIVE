@@ -35,6 +35,7 @@ def create_scores(
 
 from tournament_os.api.routers.sse import broadcaster
 
+
 @router.post("/scores/{score_id}/approve", response_model=ScoreRead)
 async def approve_score(
     score_id: str,
@@ -45,6 +46,7 @@ async def approve_score(
     await broadcaster.publish("score_update", {"score_id": score_id, "status": "approved"})
     return score
 
+
 @router.post("/scores/{score_id}/reject", response_model=ScoreRead)
 async def reject_score(
     score_id: str,
@@ -53,4 +55,37 @@ async def reject_score(
     score = ScoreEntryService(session).reject_score(score_id)
     session.commit()
     await broadcaster.publish("score_update", {"score_id": score_id, "status": "rejected"})
+    return score
+
+
+@router.post("/scores/{score_id}/submit", response_model=ScoreRead)
+async def submit_score(
+    score_id: str,
+    session: Session = Depends(get_session),
+) -> Score:
+    score = ScoreEntryService(session).submit_score(score_id)
+    session.commit()
+    await broadcaster.publish("score_update", {"score_id": score_id, "status": "submitted"})
+    return score
+
+
+@router.post("/scores/{score_id}/verify", response_model=ScoreRead)
+async def verify_score(
+    score_id: str,
+    session: Session = Depends(get_session),
+) -> Score:
+    score = ScoreEntryService(session).verify_score(score_id)
+    session.commit()
+    await broadcaster.publish("score_update", {"score_id": score_id, "status": "pending_verification"})
+    return score
+
+
+@router.post("/scores/{score_id}/finalize", response_model=ScoreRead)
+async def mark_score_final(
+    score_id: str,
+    session: Session = Depends(get_session),
+) -> Score:
+    score = ScoreEntryService(session).mark_score_final(score_id)
+    session.commit()
+    await broadcaster.publish("score_update", {"score_id": score_id, "status": "final"})
     return score

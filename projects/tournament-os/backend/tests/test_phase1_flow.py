@@ -137,6 +137,8 @@ class Phase1FlowTests(unittest.TestCase):
                             ),
                             submitted_by_user_id=admin.id,
                         )
+                        scoring_service.submit_score(score.id, actor_user_id=admin.id)
+                        scoring_service.verify_score(score.id, actor_user_id=admin.id)
                         scoring_service.approve_score(score.id, actor_user_id=admin.id)
 
             dashboard = DashboardQueryService(session).admin_dashboard(tournament.id)
@@ -181,6 +183,8 @@ class Phase1FlowTests(unittest.TestCase):
                         ),
                         submitted_by_user_id=admin.id,
                     )
+                    scoring_service.submit_score(score.id, actor_user_id=admin.id)
+                    scoring_service.verify_score(score.id, actor_user_id=admin.id)
                     scoring_service.approve_score(score.id, actor_user_id=admin.id)
             winner = AdvancementService(session).publish_stage_winner(
                 tournament.id,

@@ -1,4 +1,5 @@
 from tournament_os.schemas.common import ApiModel
+from tournament_os.schemas.scoring import ScoreCreateItem
 
 
 class DisputeCreate(ApiModel):
@@ -11,6 +12,7 @@ class DisputeCreate(ApiModel):
 class DisputeResolve(ApiModel):
     resolved_by_user_id: str | None = None
     resolved_note: str | None = None
+    corrected_score: ScoreCreateItem | None = None
 
 
 class DisputeRead(ApiModel):

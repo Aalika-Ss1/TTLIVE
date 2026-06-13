@@ -139,6 +139,8 @@ def main() -> None:
                         ),
                         submitted_by_user_id=admin.id,
                     )
+                    scoring_service.submit_score(score.id, actor_user_id=admin.id)
+                    scoring_service.verify_score(score.id, actor_user_id=admin.id)
                     scoring_service.approve_score(score.id, actor_user_id=admin.id)
                     approved_scores += 1
         leaderboard = LeaderboardQueryService(session).public_leaderboard(tournament.id)
@@ -180,6 +182,8 @@ def main() -> None:
                     ),
                     submitted_by_user_id=admin.id,
                 )
+                scoring_service.submit_score(score.id, actor_user_id=admin.id)
+                scoring_service.verify_score(score.id, actor_user_id=admin.id)
                 scoring_service.approve_score(score.id, actor_user_id=admin.id)
                 final_scores += 1
         winner = AdvancementService(session).publish_stage_winner(

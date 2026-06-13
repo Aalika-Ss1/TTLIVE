@@ -3,7 +3,7 @@ from statistics import mean
 
 from tournament_os.domain.enums import ScoreStatus
 
-COUNTING_SCORE_STATUSES = {ScoreStatus.APPROVED, ScoreStatus.FINAL}
+COUNTING_SCORE_STATUSES = {ScoreStatus.APPROVED, ScoreStatus.CORRECTED, ScoreStatus.FINAL}
 
 
 @dataclass(frozen=True)

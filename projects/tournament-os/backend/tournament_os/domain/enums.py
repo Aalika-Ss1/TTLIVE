@@ -81,6 +81,7 @@ class ScoreStatus(str, Enum):
     SUBMITTED = "submitted"
     PENDING_VERIFICATION = "pending_verification"
     APPROVED = "approved"
+    REJECTED = "rejected"
     DISPUTED = "disputed"
     CORRECTED = "corrected"
     FINAL = "final"

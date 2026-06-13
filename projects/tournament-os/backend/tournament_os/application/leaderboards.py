@@ -19,7 +19,11 @@ class LeaderboardQueryService:
             .join(Round, Round.id == Score.round_id)
             .where(
                 Score.tournament_id == tournament_id,
-                Score.status.in_([ScoreStatus.APPROVED.value, ScoreStatus.FINAL.value]),
+                Score.status.in_([
+                    ScoreStatus.APPROVED.value,
+                    ScoreStatus.CORRECTED.value,
+                    ScoreStatus.FINAL.value,
+                ]),
             )
         ).all()
         records = [

@@ -5,6 +5,8 @@ from tournament_os.domain.enums import DisputeStatus, ScoreStatus
 from tournament_os.domain.errors import DomainError
 from tournament_os.domain.evidence import validate_evidence_uri
 from tournament_os.models.competition import Dispute, Score
+from tournament_os.application.scoring import ScoreEntryService
+from tournament_os.schemas.scoring import ScoreCreateItem
 
 
 class DisputeService:
@@ -58,6 +60,7 @@ class DisputeService:
         *,
         resolved_by_user_id: str | None = None,
         resolved_note: str | None = None,
+        corrected_score: ScoreCreateItem | None = None,
     ) -> Dispute:
         if status not in {DisputeStatus.UNDER_REVIEW, DisputeStatus.ACCEPTED, DisputeStatus.REJECTED}:
             raise DomainError("dispute_status_invalid", "Unsupported dispute resolution status.")
@@ -66,9 +69,26 @@ class DisputeService:
         if dispute is None:
             raise DomainError("dispute_not_found", "Dispute was not found.")
 
+        if status == DisputeStatus.REJECTED:
+            # MVP note: Rejecting a dispute leaves the score in DISPUTED status. 
+            # It requires a manual admin action to revert it to APPROVED/FINAL if needed.
+            pass
+
         dispute.status = status.value
         dispute.resolved_by_user_id = resolved_by_user_id
         dispute.resolved_note = resolved_note
+
+        if status == DisputeStatus.ACCEPTED:
+            if not corrected_score:
+                raise DomainError("missing_corrected_score", "An accepted dispute must include a corrected score payload.")
+            # Apply correction
+            scoring_service = ScoreEntryService(self.session)
+            scoring_service.correct_score(
+                score_id=dispute.score_id,
+                payload=corrected_score,
+                actor_user_id=resolved_by_user_id,
+                reason=resolved_note or f"Dispute {dispute.id} accepted.",
+            )
         self.audit_events.audit(
             action=f"{status.value}_dispute",
             entity_type="dispute",

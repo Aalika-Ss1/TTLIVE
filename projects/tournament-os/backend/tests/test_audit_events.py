@@ -120,7 +120,10 @@ class AuditEventTests(unittest.TestCase):
             submitted_by_user_id=self.admin.id
         )
         
-        ScoreEntryService(self.session).approve_score(score.id, actor_user_id=self.admin.id)
+        scoring_service = ScoreEntryService(self.session)
+        scoring_service.submit_score(score.id, actor_user_id=self.admin.id)
+        scoring_service.verify_score(score.id, actor_user_id=self.admin.id)
+        scoring_service.approve_score(score.id, actor_user_id=self.admin.id)
         
         audit = self.session.scalar(
             select(AuditLog).where(AuditLog.entity_id == score.id, AuditLog.action == "approve_score")

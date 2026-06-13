@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from pathlib import Path
 
+from tournament_os.api.auth import enforce_admin_auth
 from tournament_os.api.errors import domain_error_handler
 from tournament_os.api.routers import (
     admin,
@@ -9,6 +10,7 @@ from tournament_os.api.routers import (
     checkins,
     dashboard,
     disputes,
+    exports,
     groups,
     public,
     registrations,
@@ -65,6 +67,7 @@ def create_app() -> FastAPI:
         lifespan=lifespan,
     )
     app.add_exception_handler(DomainError, domain_error_handler)
+    app.middleware("http")(enforce_admin_auth)
     app.include_router(admin.router)
     app.include_router(advancement.router)
     app.include_router(dashboard.router)
@@ -76,6 +79,7 @@ def create_app() -> FastAPI:
     app.include_router(public.router)
     app.include_router(sse.router)
     app.include_router(discord.router)
+    app.include_router(exports.router)
     app.include_router(web_router)
     app.mount(
         "/static",
