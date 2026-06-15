@@ -13,7 +13,7 @@ API_BASE_URL = os.getenv("TOURNAMENT_API_URL", "http://127.0.0.1:8011")
 # Configure Intents
 intents = disnake.Intents.default()
 intents.message_content = False  # Keep False to avoid PrivilegedIntents error
-intents.members = False          # Set to False temporarily to avoid PrivilegedIntents error
+intents.members = True           # Enabled for Discord Role Sync (Phase 3)
 
 bot = commands.InteractionBot(intents=intents)
 

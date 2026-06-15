@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from tournament_os.config import settings
 from fastapi.staticfiles import StaticFiles
 from pathlib import Path
 

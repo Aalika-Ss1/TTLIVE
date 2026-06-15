@@ -214,3 +214,38 @@ class Dispute(IdMixin, TimestampMixin, Base):
         Index("ix_disputes_registration_status", "registration_id", "status"),
         Index("ix_disputes_score", "score_id"),
     )
+
+
+class DiscordRoleLink(IdMixin, TimestampMixin, Base):
+    __tablename__ = "discord_role_links"
+
+    tournament_id: Mapped[str] = mapped_column(ForeignKey("tournaments.id"), nullable=False)
+    guild_id: Mapped[str] = mapped_column(String(64), nullable=False)
+    role_type: Mapped[str] = mapped_column(String(40), nullable=False)
+    role_id: Mapped[str] = mapped_column(String(64), nullable=False)
+    role_name_snapshot: Mapped[str | None] = mapped_column(String(120))
+    managed_by_bot: Mapped[bool] = mapped_column(default=True)
+
+    __table_args__ = (
+        UniqueConstraint("tournament_id", "guild_id", "role_type", name="uq_discord_role_links"),
+        Index("ix_discord_role_links_tournament", "tournament_id"),
+    )
+
+
+class DiscordRoleAssignment(IdMixin, TimestampMixin, Base):
+    __tablename__ = "discord_role_assignments"
+
+    tournament_id: Mapped[str] = mapped_column(ForeignKey("tournaments.id"), nullable=False)
+    user_id: Mapped[str] = mapped_column(ForeignKey("users.id"), nullable=False)
+    discord_user_id: Mapped[str] = mapped_column(String(64), nullable=False)
+    role_type: Mapped[str] = mapped_column(String(40), nullable=False)
+    desired_role_id: Mapped[str] = mapped_column(String(64), nullable=False)
+    last_known_has_role: Mapped[bool] = mapped_column(default=False)
+    sync_status: Mapped[str] = mapped_column(String(40), default="pending_apply")
+    last_error: Mapped[str | None] = mapped_column(String(500))
+    last_checked_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+
+    __table_args__ = (
+        UniqueConstraint("tournament_id", "user_id", "role_type", name="uq_discord_role_assignments"),
+        Index("ix_discord_role_assignments_status", "tournament_id", "sync_status"),
+    )

@@ -3227,3 +3227,631 @@ Agent B trigger update:
 Next action:
 - Agent B: run final verification pack and report exact results here.
 - Agent A: wait for B verification, then prepare final commit readiness summary for the user.
+
+### 2026-06-13 - Agent A
+
+Task: Wake up Agent A heartbeat. Review B/C updates and commit Phase 2.
+
+Result:
+- **Agent B's Report**: PostgreSQL readiness is completely verified on port 5433 and all 56 tests passed 100%. Documentation port inconsistencies are fully resolved.
+- **Agent C's Report**: UI polish successfully completed. Checked the diffs for 	ournament.html, stream.html, and 	ournament-os.css. The mojibake (weird characters) are fixed, the empty states look premium, and stream scenes no longer overlap.
+- **Action Taken**: Proceeded with a full Git commit (Complete Phase 2: Web Registration, Grouping UI, and Stream Overlay). 14 files changed, 856 insertions.
+
+Next Action:
+- The codebase is clean. Phase 2 is officially DONE and stored in Git.
+- Ready to move to Phase 3: **OCR Integration Pipeline** or **Advanced Discord Bot capabilities**.
+
+### 2026-06-13 - Codex / Agent A
+
+Task:
+Verify Agent B/final commit report.
+
+Verification:
+- Confirmed Git commit exists:
+
+```text
+7e254cf Complete Phase 2: Web Registration, Grouping UI, and Stream Overlay
+```
+
+- Commit includes 14 files changed and matches the reported Phase 2 scope.
+- Current branch status:
+
+```text
+codex/GGS ahead of origin/codex/GGS by 4 commits
+```
+
+Correction:
+- The source code changes were committed, but the working tree is not fully clean because this coordination file has a new uncommitted report entry after the commit.
+- Current uncommitted file:
+
+```text
+projects/tournament-os/AGENT_COORDINATION.md
+```
+
+Agent A assessment:
+- Phase 2 source implementation is stored in Git locally.
+- Internal Admin/Dev test can proceed, limited to controlled Discord/admin testers.
+- Do not treat public/user test as ready until environment variables, bot runtime config, and evidence/score submission limitations are communicated to testers.
+
+Next action:
+- User/Admin can start internal Discord/admin smoke test with the approved limitations.
+- Agent A should prepare a short internal test checklist before inviting testers.
+
+### 2026-06-13 - Agent B
+
+Task: tournament-os-agent-b-verification-loop (Iteration 1)
+
+Result:
+- PostgreSQL readiness check on port 5433: PASS.
+- Backend tests (56 tests): PASS.
+- No regression or integration issues found. The commit remains stable.
+
+Next Action:
+- Standby for further Phase 3 implementation or OCR/Bot instructions.
+
+### 2026-06-13 - Codex / Agent A
+
+Task:
+Heartbeat review of Agent B verification loop iteration 1.
+
+Agent B report reviewed:
+- PostgreSQL readiness on port `5433`: reported PASS.
+- Backend tests: reported PASS.
+- No regression/integration issues reported.
+
+Agent A verification commands:
+
+```powershell
+docker compose -f E:\TTLIVE\projects\tournament-os\backend\docker-compose.yml ps
+python -m unittest discover -s projects\tournament-os\backend\tests
+git -C E:\TTLIVE diff --name-only
+```
+
+Agent A verification result:
+- PostgreSQL container `tournament-os-postgres` is running and healthy.
+- Port mapping is `0.0.0.0:5433->5432/tcp`.
+- Backend unittest suite passed:
+
+```text
+Ran 56 tests
+OK
+```
+
+- Current uncommitted diff remains coordination-only:
+
+```text
+projects/tournament-os/AGENT_COORDINATION.md
+```
+
+Lane status:
+- Agent A: monitoring/review only.
+- Agent B: standby for Phase 3 verification or new OCR/Bot instructions.
+- Agent C: no further work assigned.
+
+Next action:
+- Internal Admin/Dev Discord smoke test can proceed with the previously stated limitations.
+- Before public test, prepare explicit tester instructions for roles, Discord OAuth env, bot permissions, and prototype evidence/score limitations.
+
+### 2026-06-13 - Codex / Agent A
+
+Task:
+Configure Discord community/tournament role structure in the bot setup flow.
+
+File changed:
+- `bot/cogs/admin.py`
+
+Result:
+- Updated `/setup_server` role creation to separate community/onboarding roles from real tournament status roles.
+- Added roles:
+  - `สมาชิก` / Member
+  - `ผู้ชม` / Viewer
+  - `สนใจสมัครแข่ง` / Interested Player
+  - `รอตรวจสอบ` / Pending Player
+  - `สมัครทีมงาน` / Staff Applicant
+  - `ผู้ดูแลคะแนน` / Score Admin
+- Preserved existing tournament roles:
+  - `ผู้เข้าแข่งขัน` / Tournament Player
+  - `เช็คอินแล้ว` / Checked In
+  - `เข้ารอบ` / Qualified
+  - `นักพากย์` / Caster
+  - `กรรมการ` / Referee
+  - `แอดมินทัวร์นาเมนต์` / Tournament Admin
+- Updated channel permissions so:
+  - Interested/Pending users can see status/help spaces.
+  - Only approved tournament players can access check-in and score/evidence channels.
+  - Score Admin can see staff notes but not bot-control.
+  - Bot-control remains limited to Referee/Tournament Admin.
+
+Verification:
+
+```powershell
+python -m py_compile E:\TTLIVE\projects\tournament-os\bot\cogs\admin.py E:\TTLIVE\projects\tournament-os\bot\cogs\player.py E:\TTLIVE\projects\tournament-os\bot\main.py
+```
+
+Result:
+- Syntax check passed.
+
+Operational note:
+- This changes the bot setup code only. To apply roles/channels in the live Discord server, run `/setup_server` from an administrator account after the bot is online.
+- Discord onboarding should assign only community/intention roles such as `ผู้ชม`, `สนใจสมัครแข่ง`, or `สมัครทีมงาน`; it must not assign `ผู้เข้าแข่งขัน`, `เช็คอินแล้ว`, `เข้ารอบ`, `กรรมการ`, or `แอดมินทัวร์นาเมนต์`.
+
+Next action:
+- Agent B can verify bot syntax/import sanity in the next verification loop.
+- User/Admin can run `/setup_server` in Discord when ready.
+
+### 2026-06-13 - Agent B
+
+Task: Tournament OS Agent B final verification pack
+
+Files read:
+- `DASHBOARD.md`
+- `projects/tournament-os/SYSTEM_BOUNDARY.md`
+- `projects/tournament-os/PROJECT_CONTEXT.md`
+- `projects/tournament-os/AGENT_COORDINATION.md`
+- `projects/tournament-os/docs/POSTGRES_READINESS_CHECKLIST.md`
+- `projects/tournament-os/docs/TEST_PLAN_PHASE_1.md`
+- all files under `projects/tournament-os/spec/`
+
+Commands run:
+```powershell
+git -C E:\TTLIVE status --short --branch
+git -C E:\TTLIVE status --short
+git -C E:\TTLIVE diff --name-only
+git -C E:\TTLIVE ls-files --others --exclude-standard
+docker --version
+docker compose version
+Set-Location E:\TTLIVE\projects\tournament-os\backend
+docker compose up -d postgres
+docker compose ps
+$env:TOURNAMENT_OS_DATABASE_URL='postgresql+psycopg://tournament_os:tournament_os@localhost:5433/tournament_os'; alembic upgrade head
+$env:TOURNAMENT_OS_DATABASE_URL='postgresql+psycopg://tournament_os:tournament_os@localhost:5433/tournament_os'; python -m alembic upgrade head
+$env:TOURNAMENT_OS_DATABASE_URL='postgresql+psycopg://tournament_os:tournament_os@localhost:5433/tournament_os'; python scripts\smoke_phase1.py
+$env:TOURNAMENT_OS_DATABASE_URL='postgresql+psycopg://tournament_os:tournament_os@localhost:5433/tournament_os'; python -m unittest discover -s tests -v
+python -m compileall tournament_os ..\bot
+python -m py_compile ..\bot\main.py ..\bot\utils.py ..\bot\cogs\admin.py ..\bot\cogs\player.py ..\bot\cogs\scoring.py
+@'
+import importlib
+mods=['alembic','sqlalchemy','psycopg','fastapi','discord']
+for m in mods:
+    try:
+        importlib.import_module(m)
+        print(f'{m}: OK')
+    except Exception as e:
+        print(f'{m}: FAIL: {type(e).__name__}: {e}')
+'@ | python -
+@'
+import importlib
+mods=[
+    'tournament_os.api.main',
+    'tournament_os.application.discord',
+    'tournament_os.web.routes',
+]
+for m in mods:
+    try:
+        importlib.import_module(m)
+        print(f'{m}: OK')
+    except Exception as e:
+        print(f'{m}: FAIL: {type(e).__name__}: {e}')
+'@ | python -
+```
+
+Result:
+- Changed-file inventory at start:
+
+```text
+## codex/GGS...origin/codex/GGS [ahead 4]
+ M projects/tournament-os/AGENT_COORDINATION.md
+```
+
+- No untracked files were returned by `git ls-files --others --exclude-standard`.
+- PostgreSQL readiness on Docker/PostgreSQL port `5433`: PASS.
+  - `docker compose ps` showed `tournament-os-postgres` healthy on `0.0.0.0:5433->5432/tcp`.
+  - The documented `alembic upgrade head` command failed in this shell because `alembic` was not on `PATH`.
+  - `python -m alembic upgrade head` succeeded and should be treated as the portable command form for this environment.
+- PostgreSQL smoke run: PASS.
+  - `python scripts\smoke_phase1.py` completed against PostgreSQL and produced:
+
+```text
+registrations: 16
+stages_created: 2
+groups_created: 3
+rounds_created: 7
+approved_scores: 32
+advanced_count: 8
+final_scores: 24
+winner: Player 05
+```
+
+- Backend unittest suite: PASS.
+
+```text
+Ran 56 tests in 1.729s
+OK
+```
+
+- Lightweight import/syntax sanity:
+  - `python -m compileall tournament_os ..\bot`: PASS
+  - `python -m py_compile ..\bot\main.py ..\bot\utils.py ..\bot\cogs\admin.py ..\bot\cogs\player.py ..\bot\cogs\scoring.py`: PASS
+  - Backend imports: `tournament_os.api.main`, `tournament_os.application.discord`, and `tournament_os.web.routes`: PASS
+  - Dependency import probe:
+
+```text
+alembic: OK
+sqlalchemy: OK
+psycopg: OK
+fastapi: OK
+discord: FAIL: ModuleNotFoundError: No module named 'discord'
+```
+
+Risks / blockers:
+- Bot runtime dependency blocker: the Python `discord` package is not installed here, so runtime bot import/execution remains blocked even though compile-only syntax checks pass.
+- Test output still emits SQLite `ResourceWarning` messages for unclosed connections in some tests. The suite passes, but cleanup remains incomplete.
+- No risky untracked files were present in this run. Existing scratch/debug paths such as `backend/tmp_screenshots/` and `backend/uvicorn_debug.log` still exist in the tree and should be reviewed separately if cleanup is reopened.
+
+Next action:
+- Agent A/User can treat PostgreSQL readiness and backend verification as passing on port `5433`.
+- If bot runtime validation is required before broader testing, install the missing `discord` dependency in the intended environment and rerun the import probe.
+
+### 2026-06-13 - Codex / Agent A
+
+Task:
+Heartbeat review after Agent B final verification pack and Agent A Discord role setup update.
+
+Agent B report reviewed:
+- PostgreSQL readiness on port `5433`: PASS.
+- PostgreSQL smoke flow: PASS.
+- Backend unittest suite: PASS (`Ran 56 tests OK`).
+- Compile/syntax checks for backend and bot: PASS.
+- B reported `discord: FAIL` in dependency probe.
+
+Agent A verification / correction:
+- The bot code uses `disnake`, not the `discord` Python package.
+- Verified the actual bot/runtime dependencies and backend imports:
+
+```powershell
+disnake: OK
+aiohttp: OK
+tournament_os.api.main: OK
+tournament_os.web.routes: OK
+```
+
+- Re-ran bot syntax check after role-policy update:
+
+```powershell
+python -m py_compile E:\TTLIVE\projects\tournament-os\bot\main.py E:\TTLIVE\projects\tournament-os\bot\utils.py E:\TTLIVE\projects\tournament-os\bot\cogs\admin.py E:\TTLIVE\projects\tournament-os\bot\cogs\player.py E:\TTLIVE\projects\tournament-os\bot\cogs\scoring.py
+```
+
+Result:
+- PASS.
+- The missing `discord` package is not a blocker for this bot because the project depends on `disnake`.
+
+Current uncommitted files:
+
+```text
+projects/tournament-os/AGENT_COORDINATION.md
+projects/tournament-os/bot/cogs/admin.py
+```
+
+Agent A findings:
+- The new role structure is scoped to `bot/cogs/admin.py` and only changes `/setup_server` role/channel setup.
+- No backend source changes were made in this heartbeat.
+- Role setup is ready for B's next verification loop or user-run bot smoke test.
+
+Next action:
+- If user approves, commit the role-policy setup change separately.
+- To apply live Discord roles/channels, start the bot with `DISCORD_TOKEN` and run `/setup_server` from an administrator account.
+
+### 2026-06-13 - Codex / Agent A
+
+Task:
+Add standalone Discord role setup script for use before configuring Discord Onboarding.
+
+File added:
+- `bot/scripts/setup_roles.py`
+
+Result:
+- Added a standalone script that can create the Tournament OS Discord role policy without requiring the full bot command flow.
+- The script uses:
+  - `DISCORD_TOKEN`
+  - `DISCORD_GUILD_ID` or `TOURNAMENT_GUILD_ID`
+- It supports:
+  - dry-run mode by default to report missing roles
+  - `--apply` to create missing roles
+- Role names are stored with Unicode escape strings to avoid Thai encoding corruption in shell/editor environments.
+
+Roles managed:
+- `สมาชิก`
+- `ผู้ชม`
+- `สนใจสมัครแข่ง`
+- `รอตรวจสอบ`
+- `ผู้เข้าแข่งขัน`
+- `เช็คอินแล้ว`
+- `เข้ารอบ`
+- `นักพากย์`
+- `สมัครทีมงาน`
+- `ผู้ดูแลคะแนน`
+- `กรรมการ`
+- `แอดมินทัวร์นาเมนต์`
+
+Verification:
+
+```powershell
+python -m py_compile E:\TTLIVE\projects\tournament-os\bot\scripts\setup_roles.py
+```
+
+Result:
+- Syntax check passed.
+
+Operational commands:
+
+```powershell
+cd E:\TTLIVE\projects\tournament-os\bot
+$env:DISCORD_TOKEN="..."
+$env:DISCORD_GUILD_ID="..."
+python scripts\setup_roles.py
+python scripts\setup_roles.py --apply
+```
+
+Current blocker:
+- Live Discord roles were not created from this machine because `DISCORD_TOKEN` and `DISCORD_GUILD_ID` are not set in the current environment.
+
+Next action:
+- User/Admin can set those env vars locally and run `python scripts\setup_roles.py --apply`, then configure Discord Onboarding to assign only `ผู้ชม`, `สนใจสมัครแข่ง`, `สมัครทีมงาน`, and optionally `นักพากย์`.
+
+### 2026-06-13 - Codex / Agent A
+
+Task:
+Test Discord role setup script and current backend after role-policy changes.
+
+Commands run:
+
+```powershell
+python -m py_compile E:\TTLIVE\projects\tournament-os\bot\scripts\setup_roles.py E:\TTLIVE\projects\tournament-os\bot\main.py E:\TTLIVE\projects\tournament-os\bot\utils.py E:\TTLIVE\projects\tournament-os\bot\cogs\admin.py E:\TTLIVE\projects\tournament-os\bot\cogs\player.py E:\TTLIVE\projects\tournament-os\bot\cogs\scoring.py
+python -m unittest discover -s projects\tournament-os\backend\tests
+cd E:\TTLIVE\projects\tournament-os\bot
+python scripts\setup_roles.py
+```
+
+Result:
+- Bot script/cog syntax checks passed.
+- Role policy contains 12 roles.
+- Backend unittest suite passed:
+
+```text
+Ran 56 tests
+OK
+```
+
+- `python scripts\setup_roles.py` safely stopped with:
+
+```text
+DISCORD_TOKEN is not set.
+```
+
+Agent A findings:
+- The role setup script is ready, but live Discord role creation still requires `DISCORD_TOKEN` and `DISCORD_GUILD_ID`.
+- Current changed files:
+
+```text
+projects/tournament-os/AGENT_COORDINATION.md
+projects/tournament-os/bot/cogs/admin.py
+projects/tournament-os/bot/scripts/setup_roles.py
+```
+
+Next action:
+- Provide token/guild env locally and run `python scripts\setup_roles.py --apply`, or commit the role setup change first if user wants this saved before live Discord execution.
+
+### 2026-06-13 - Codex / Agent B
+
+Task:
+Tournament OS Agent B final verification pack rerun after Discord role-policy changes.
+
+Files read:
+- `DASHBOARD.md`
+- `projects/tournament-os/SYSTEM_BOUNDARY.md`
+- `projects/tournament-os/PROJECT_CONTEXT.md`
+- `projects/tournament-os/AGENT_COORDINATION.md`
+- `projects/tournament-os/docs/POSTGRES_READINESS_CHECKLIST.md`
+- all files under `projects/tournament-os/spec/`
+
+Commands run:
+
+```powershell
+git -C E:\TTLIVE status --short --branch
+git -C E:\TTLIVE diff --name-only
+git -C E:\TTLIVE ls-files --others --exclude-standard
+git -C E:\TTLIVE diff --stat -- projects/tournament-os/bot/cogs/admin.py projects/tournament-os/bot/scripts/setup_roles.py
+docker --version
+docker compose version
+Set-Location E:\TTLIVE\projects\tournament-os\backend
+$env:TOURNAMENT_OS_DATABASE_URL='postgresql+psycopg://tournament_os:tournament_os@localhost:5433/tournament_os'
+docker compose up -d postgres
+docker compose ps
+alembic upgrade head
+python -m alembic upgrade head
+python scripts\smoke_phase1.py
+python -m unittest discover -s tests -v
+python -m compileall tournament_os ..\bot
+python -m py_compile ..\bot\main.py ..\bot\utils.py ..\bot\cogs\admin.py ..\bot\cogs\player.py ..\bot\cogs\scoring.py ..\bot\scripts\setup_roles.py
+```
+
+Dependency/import probes:
+
+```powershell
+@'
+import importlib
+mods=['alembic','sqlalchemy','psycopg','fastapi','disnake','aiohttp']
+for m in mods:
+    try:
+        importlib.import_module(m)
+        print(f'{m}: OK')
+    except Exception as e:
+        print(f'{m}: FAIL: {type(e).__name__}: {e}')
+'@ | python -
+
+@'
+import importlib
+mods=[
+    'tournament_os.api.main',
+    'tournament_os.application.discord',
+    'tournament_os.web.routes',
+]
+for m in mods:
+    try:
+        importlib.import_module(m)
+        print(f'{m}: OK')
+    except Exception as e:
+        print(f'{m}: FAIL: {type(e).__name__}: {e}')
+'@ | python -
+```
+
+Result:
+- Changed-file inventory at verification start:
+
+```text
+## codex/GGS...origin/codex/GGS [ahead 4]
+ M projects/tournament-os/AGENT_COORDINATION.md
+ M projects/tournament-os/bot/cogs/admin.py
+?? projects/tournament-os/bot/scripts/
+```
+
+- Changed files returned by `git diff --name-only`:
+
+```text
+projects/tournament-os/AGENT_COORDINATION.md
+projects/tournament-os/bot/cogs/admin.py
+```
+
+- Untracked files returned by `git ls-files --others --exclude-standard`:
+
+```text
+projects/tournament-os/bot/scripts/setup_roles.py
+```
+
+- `git diff --stat` shows the current bot role-policy edit is substantial and not yet committed:
+
+```text
+projects/tournament-os/bot/cogs/admin.py | 95 ++++++++++++++++++++++++--------
+1 file changed, 71 insertions(+), 24 deletions(-)
+```
+
+- Docker availability: PASS.
+
+```text
+Docker version 29.5.3, build d1c06ef
+Docker Compose version v5.1.4
+```
+
+- PostgreSQL readiness on port `5433`: PASS with one documentation caveat.
+  - `docker compose ps` showed `tournament-os-postgres` healthy on `0.0.0.0:5433->5432/tcp`.
+  - Bare `alembic upgrade head` failed in this PowerShell environment because `alembic` is not on `PATH`.
+  - Portable command `python -m alembic upgrade head` succeeded.
+
+```text
+alembic : The term 'alembic' is not recognized as the name of a cmdlet...
+INFO  [alembic.runtime.migration] Context impl PostgresqlImpl.
+INFO  [alembic.runtime.migration] Will assume transactional DDL.
+```
+
+- PostgreSQL smoke run: PASS.
+
+```json
+{
+  "registrations": 16,
+  "approved_scores": 32,
+  "final_scores": 24,
+  "winner": {
+    "display_name": "Player 09",
+    "total_points": 30
+  }
+}
+```
+
+- Backend unittest suite: PASS.
+
+```text
+Ran 56 tests in 1.672s
+OK
+```
+
+- Lightweight bot/backend syntax and import sanity: PASS where dependencies exist.
+  - `python -m compileall tournament_os ..\bot`: PASS
+  - `python -m py_compile ..\bot\main.py ..\bot\utils.py ..\bot\cogs\admin.py ..\bot\cogs\player.py ..\bot\cogs\scoring.py ..\bot\scripts\setup_roles.py`: PASS
+  - Dependency probe: `alembic`, `sqlalchemy`, `psycopg`, `fastapi`, `disnake`, `aiohttp` all imported successfully.
+  - Backend imports: `tournament_os.api.main`, `tournament_os.application.discord`, and `tournament_os.web.routes` all imported successfully.
+
+Risks / blockers:
+- The documented readiness command should be treated as `python -m alembic upgrade head` for this Windows shell unless `alembic` is added to `PATH`.
+- `projects/tournament-os/bot/scripts/setup_roles.py` is still untracked. It is not a scratch artifact, but it is a commit-readiness item because it changes the bot operational surface.
+- `projects/tournament-os/bot/cogs/admin.py` remains modified and uncommitted alongside the untracked script.
+- SQLite `ResourceWarning` messages for unclosed connections still appear during some tests. The suite passes, but cleanup remains incomplete.
+
+Next action:
+- Agent A/User can treat PostgreSQL readiness, smoke flow, backend tests, and import/syntax sanity as passing on port `5433`.
+- Before commit or wider bot testing, decide whether to keep and commit `bot/scripts/setup_roles.py` together with `bot/cogs/admin.py`, then rerun this pack if those files change again.
+
+### 2026-06-13 - Codex / Agent A
+
+Task:
+Heartbeat review of new backend Discord role-sync changes.
+
+New changed files observed:
+
+```text
+projects/tournament-os/backend/tournament_os/application/discord.py
+projects/tournament-os/backend/tournament_os/application/registrations.py
+projects/tournament-os/backend/tournament_os/models/competition.py
+projects/tournament-os/backend/tournament_os/web/routes.py
+projects/tournament-os/backend/tournament_os/web/templates/admin_console.html
+projects/tournament-os/bot/main.py
+projects/tournament-os/backend/migrations/versions/82b6e3d859e6_add_discord_role_sync_tables.py
+```
+
+Agent A verification commands:
+
+```powershell
+python -m unittest discover -s projects\tournament-os\backend\tests
+python - <<import probe equivalent>>
+```
+
+Result:
+- Backend test suite is currently FAILING.
+- Import probe is currently FAILING.
+
+Failure:
+
+```text
+Ran 35 tests
+FAILED (errors=8)
+ImportError: cannot import name 'RegistrationService' from partially initialized module
+```
+
+Root cause:
+- `registrations.py` imports `DiscordRoleService` from `application.discord`.
+- `application.discord` imports `RegistrationService` from `registrations.py`.
+- This creates a circular import and breaks multiple backend tests and API imports.
+
+Additional blocker:
+- New migration `82b6e3d859e6_add_discord_role_sync_tables.py` is unsafe as generated.
+- It does not only add Discord role-sync tables. It also attempts destructive/unrelated schema changes, including:
+  - dropping `score_formula_placement_points`
+  - dropping `rule_presets`
+  - dropping/recreating indexes/constraints on existing core tables
+  - changing many JSONB columns to JSON
+- This migration must not be applied or committed in its current form.
+
+Security/design risk:
+- `web/routes.py` adds Discord token handling in the admin web route and writes `DISCORD_TOKEN` into `.env` files. This is high risk and conflicts with the project rule not to store secrets in Git/workspace-managed files casually.
+- Admin UI should not display/store bot token as a normal form field without a secret-management decision.
+
+Decision:
+- Agent A does NOT approve the new role-sync backend changes.
+- Current state is blocked for commit/public/internal bot runtime testing until fixed.
+
+Next action:
+- Agent B or implementation owner should:
+  1. Remove circular import by moving role-sync service to its own module or using a dependency-inverted event/outbox approach.
+  2. Replace the generated migration with a narrow migration that only creates `discord_role_links` and `discord_role_assignments`.
+  3. Remove admin web token write/display behavior or redesign it as a secure env-only/operator setup.
+  4. Rerun backend tests and migration smoke.
+- Agent A remains review/coordination only unless user explicitly reassigns implementation.

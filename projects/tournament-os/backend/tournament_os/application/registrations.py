@@ -7,6 +7,7 @@ from tournament_os.application.events import AuditEventService
 from tournament_os.domain.enums import RegistrationStatus, TournamentStatus
 from tournament_os.domain.errors import DomainError
 from tournament_os.models.competition import Registration
+from tournament_os.models.identity import User
 from tournament_os.models.tournament import Tournament
 from tournament_os.schemas.registration import RegistrationCreate
 
@@ -100,6 +101,20 @@ class RegistrationService:
             tournament_id=registration.tournament_id,
             payload={"user_id": registration.user_id},
         )
+        
+        # Phase 3: Discord Role Sync
+        discord_identity = self.session.scalar(
+            select(User.discord_id).where(User.id == registration.user_id)
+        )
+        if discord_identity:
+            from tournament_os.application.discord import DiscordRoleService
+            DiscordRoleService(self.session).assign_role_if_linked(
+                tournament_id=registration.tournament_id,
+                user_id=registration.user_id,
+                discord_user_id=discord_identity,
+                role_type="player"
+            )
+            
         self.session.flush()
         return registration
 

@@ -9,7 +9,10 @@ from tournament_os.application.leaderboards import LeaderboardQueryService
 from tournament_os.application.registrations import RegistrationService
 from tournament_os.domain.enums import CheckInSessionStatus, RegistrationStatus
 from tournament_os.domain.errors import DomainError
-from tournament_os.models.competition import CheckInSession, Registration
+import os
+import httpx
+
+from tournament_os.models.competition import CheckInSession, Registration, DiscordRoleLink, DiscordRoleAssignment
 from tournament_os.models.identity import User
 from tournament_os.schemas.registration import RegistrationCreate
 
