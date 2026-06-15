@@ -265,9 +265,7 @@ def web_admin(
     )
     
     # Fetch Discord Settings
-    import os
     from tournament_os.models.competition import DiscordRoleLink
-    discord_token = os.getenv("DISCORD_TOKEN", "")
     role_links = list(
         session.scalars(
             select(DiscordRoleLink)
@@ -275,7 +273,6 @@ def web_admin(
         )
     )
     discord_settings = {
-        "token": discord_token,
         "guild_id": role_links[0].guild_id if role_links else "",
         "roles": {link.role_type: link.role_id for link in role_links}
     }
@@ -389,160 +386,3 @@ async def web_submit_score_post(
     # Placeholder: Redirect back to tournament page with success
     
     return RedirectResponse(url=f"/web/tournaments/{tournament_id}/submit?success=1", status_code=303)
-
-@router.post('/web/admin/tournaments/{slug}/discord-settings')
-def web_admin_discord_settings_post(
-    slug: str,
-    request: Request,
-    discord_token: str = Form(""),
-    guild_id: str = Form(""),
-    role_player: str = Form(""),
-    role_checked_in: str = Form(""),
-    role_qualified: str = Form(""),
-    session: Session = Depends(get_session)
-):
-    tournament = session.scalar(select(Tournament).where(Tournament.public_slug == slug))
-    if tournament is None:
-        raise DomainError("tournament_not_found", "Tournament was not found.")
-
-    from tournament_os.models.competition import DiscordRoleLink
-    import os
-    from pathlib import Path
-    import re
-
-    # Update .env
-    env_paths = [
-        Path(__file__).resolve().parents[2] / ".env",
-        Path(__file__).resolve().parents[3] / "bot" / ".env"
-    ]
-    for env_path in env_paths:
-        if env_path.exists():
-            content = env_path.read_text(encoding="utf-8")
-            if "DISCORD_TOKEN=" in content:
-                content = re.sub(r'DISCORD_TOKEN=.*', f'DISCORD_TOKEN={discord_token}', content)
-            else:
-                content += f"\nDISCORD_TOKEN={discord_token}"
-            env_path.write_text(content, encoding="utf-8")
-            
-    # Also update current process env so we don't have to restart
-    os.environ["DISCORD_TOKEN"] = discord_token
-
-    # Upsert Roles
-    role_map = {
-        "player": role_player,
-        "checked_in": role_checked_in,
-        "qualified": role_qualified
-    }
-    
-    for r_type, r_id in role_map.items():
-        if not r_id:
-            continue
-        link = session.scalar(
-            select(DiscordRoleLink).where(
-                DiscordRoleLink.tournament_id == tournament.id,
-                DiscordRoleLink.role_type == r_type
-            )
-        )
-        if link:
-            link.guild_id = guild_id
-            link.role_id = r_id
-        else:
-            session.add(DiscordRoleLink(
-                tournament_id=tournament.id,
-                guild_id=guild_id,
-                role_type=r_type,
-                role_id=r_id,
-                managed_by_bot=True
-            ))
-            
-    session.commit()
-    return RedirectResponse(url=f"/web/admin/tournaments/{slug}?tab=settings", status_code=303)
-
-@router.post('/web/admin/tournaments/{slug}/discord-auto-setup')
-async def web_admin_discord_auto_setup_post(
-    slug: str,
-    request: Request,
-    discord_token: str = Form(...),
-    guild_id: str = Form(...),
-    session: Session = Depends(get_session)
-):
-    tournament = session.scalar(select(Tournament).where(Tournament.public_slug == slug))
-    if tournament is None:
-        raise DomainError("tournament_not_found", "Tournament was not found.")
-
-    from tournament_os.models.competition import DiscordRoleLink
-    import httpx
-    import os
-    import re
-    from pathlib import Path
-
-    # Target Roles (Thai names matching bot/scripts/setup_roles.py where possible)
-    targets = {
-        "player": {"name": "ผู้เข้าแข่งขัน", "color": 3447003}, # Blue
-        "checked_in": {"name": "เช็คอินแล้ว", "color": 3066993}, # Green
-        "qualified": {"name": "เข้ารอบ", "color": 15844367} # Gold
-    }
-
-    headers = {"Authorization": f"Bot {discord_token}"}
-    
-    async with httpx.AsyncClient() as client:
-        resp = await client.get(f"https://discord.com/api/v10/guilds/{guild_id}/roles", headers=headers)
-        if resp.status_code != 200:
-            raise DomainError("discord_error", f"Cannot fetch roles from Discord. Check Token and Server ID. Error: {resp.text}")
-            
-        existing_roles = resp.json()
-        role_map_by_name = {r["name"]: r["id"] for r in existing_roles}
-        
-        for r_type, r_spec in targets.items():
-            role_id = role_map_by_name.get(r_spec["name"])
-            if not role_id:
-                payload = {
-                    "name": r_spec["name"],
-                    "color": r_spec["color"],
-                    "hoist": True,
-                    "mentionable": True
-                }
-                c_resp = await client.post(f"https://discord.com/api/v10/guilds/{guild_id}/roles", headers=headers, json=payload)
-                if c_resp.status_code in [200, 201]:
-                    role_id = c_resp.json()["id"]
-                else:
-                    raise DomainError("discord_error", f"Cannot create role {r_spec['name']}. Missing 'Manage Roles' permission? Error: {c_resp.text}")
-            
-            # Upsert DiscordRoleLink
-            link = session.scalar(
-                select(DiscordRoleLink).where(
-                    DiscordRoleLink.tournament_id == tournament.id,
-                    DiscordRoleLink.role_type == r_type
-                )
-            )
-            if link:
-                link.guild_id = guild_id
-                link.role_id = role_id
-            else:
-                session.add(DiscordRoleLink(
-                    tournament_id=tournament.id,
-                    guild_id=guild_id,
-                    role_type=r_type,
-                    role_id=role_id,
-                    managed_by_bot=True
-                ))
-                
-        # Update .env so the next process picks it up
-        env_paths = [
-            Path(__file__).resolve().parents[2] / ".env",
-            Path(__file__).resolve().parents[3] / "bot" / ".env"
-        ]
-        for env_path in env_paths:
-            if env_path.exists():
-                content = env_path.read_text(encoding="utf-8")
-                if "DISCORD_TOKEN=" in content:
-                    content = re.sub(r'DISCORD_TOKEN=.*', f'DISCORD_TOKEN={discord_token}', content)
-                else:
-                    content += f"\nDISCORD_TOKEN={discord_token}"
-                env_path.write_text(content, encoding="utf-8")
-        os.environ["DISCORD_TOKEN"] = discord_token
-                
-        session.commit()
-
-    return RedirectResponse(url=f"/web/admin/tournaments/{slug}?tab=settings", status_code=303)
-

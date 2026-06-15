@@ -107,7 +107,7 @@ class RegistrationService:
             select(User.discord_id).where(User.id == registration.user_id)
         )
         if discord_identity:
-            from tournament_os.application.discord import DiscordRoleService
+            from tournament_os.application.discord_roles import DiscordRoleService
             DiscordRoleService(self.session).assign_role_if_linked(
                 tournament_id=registration.tournament_id,
                 user_id=registration.user_id,

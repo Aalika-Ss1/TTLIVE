@@ -240,3 +240,4 @@ class DiscordIntegrationService:
         }:
             return ["view_status"]
         return []
+
