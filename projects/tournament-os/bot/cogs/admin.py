@@ -114,6 +114,9 @@ class AdminSetup(commands.Cog):
 
         # 2. Category: COMMUNITY (Public)
         comm_cat = await get_or_create_category("📌 คอมมูนิตี้ทั่วไป")
+        await get_or_create_text_channel(comm_cat, "👋-ยินดีต้อนรับ", overwrites={
+            everyone: disnake.PermissionOverwrite(read_messages=True, send_messages=False)
+        })
         await get_or_create_text_channel(comm_cat, "👋-พูดคุยทั่วไป", overwrites={
             everyone: disnake.PermissionOverwrite(read_messages=True, send_messages=True)
         })

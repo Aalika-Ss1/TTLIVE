@@ -42,6 +42,7 @@ if __name__ == "__main__":
     bot.load_extension("cogs.player")
     bot.load_extension("cogs.scoring")
     bot.load_extension("cogs.admin")
+    bot.load_extension("cogs.welcome")
     
     # Start bot
     if DISCORD_TOKEN == "YOUR_BOT_TOKEN_HERE":
