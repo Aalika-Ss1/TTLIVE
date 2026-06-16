@@ -1,4 +1,5 @@
 import os
+os.environ["TOURNAMENT_OS_TESTING"] = "true"
 import sqlalchemy
 from sqlalchemy.schema import DropTable
 from sqlalchemy.ext.compiler import compiles

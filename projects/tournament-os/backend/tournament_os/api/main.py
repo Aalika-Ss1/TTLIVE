@@ -18,10 +18,11 @@ from tournament_os.api.routers import (
     scores,
     sse,
     discord,
+    ocr,
 )
 from tournament_os.config import settings
 from tournament_os.domain.errors import DomainError
-from tournament_os.web.routes import router as web_router
+# from tournament_os.web.routes import router as web_router
 
 
 from contextlib import asynccontextmanager
@@ -91,12 +92,14 @@ def create_app() -> FastAPI:
     app.include_router(sse.router)
     app.include_router(discord.router)
     app.include_router(exports.router)
-    app.include_router(web_router)
-    app.mount(
-        "/static",
-        StaticFiles(directory=str(Path(__file__).resolve().parents[1] / "web" / "static")),
-        name="static",
-    )
+    app.include_router(ocr.router)
+    # Web UI router and static files are disabled for the headless Discord-bot-only architecture
+    # app.include_router(web_router)
+    # app.mount(
+    #     "/static",
+    #     StaticFiles(directory=str(Path(__file__).resolve().parents[1] / "web" / "static")),
+    #     name="static",
+    # )
 
     @app.get("/health")
     def health() -> dict[str, str]:

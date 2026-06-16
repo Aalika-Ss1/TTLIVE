@@ -301,12 +301,12 @@ class PlayerCog(commands.Cog):
             return
             
         # Note: modal_register was deprecated in Phase 2 in favor of Web Profile Registration
-
     @commands.slash_command(description="Submit match screenshot as evidence for referees")
     async def submit_evidence(
         self, 
         inter: disnake.ApplicationCommandInteraction, 
         round_name: str = commands.Param(choices=["Round 1", "Round 2", "Round 3", "Round 4", "Finals"]),
+        placement: int = commands.Param(ge=1, le=8, description="อันดับที่คุณได้ในการแข่ง (1-8)"),
         evidence: disnake.Attachment = commands.Param(description="อัปโหลดรูปภาพ Screenshot ผลการแข่ง"),
         tournament_id: str = commands.Param(default=None, description="รหัสทัวร์นาเมนต์ (เลือกข้ามได้)")
     ):
@@ -325,7 +325,7 @@ class PlayerCog(commands.Cog):
             "tournament_id": tid,
             "discord_user_id": discord_user_id,
             "round_name": round_name,
-            "placement": 0,
+            "placement": placement,
             "kills": 0,
             "evidence_uri": evidence_uri
         }
@@ -334,25 +334,53 @@ class PlayerCog(commands.Cog):
             async with aiohttp.ClientSession() as session:
                 async with session.post(f"{API_BASE_URL}/discord/scores/submit", json=payload) as resp:
                     if resp.status == 200:
+                        data = await resp.json()
+                        score_id = data.get("score_id")
+                        
+                        # Download the image from Discord
+                        async with session.get(evidence.url) as img_resp:
+                            if img_resp.status == 200:
+                                img_data = await img_resp.read()
+                                
+                                # Upload image to backend to trigger OCR
+                                form_data = aiohttp.FormData()
+                                form_data.add_field(
+                                    "file",
+                                    img_data,
+                                    filename=evidence.filename or "evidence.png",
+                                    content_type=evidence.content_type
+                                )
+                                
+                                admin_token = os.getenv("TOURNAMENT_OS_ADMIN_TOKEN", "demotoken123")
+                                headers = {"x-admin-token": admin_token}
+                                async with session.post(
+                                    f"{API_BASE_URL}/admin/scores/{score_id}/evidence",
+                                    data=form_data,
+                                    headers=headers
+                                ) as ocr_resp:
+                                    if ocr_resp.status != 200:
+                                        print(f"Failed to submit evidence file for OCR: {ocr_resp.status}")
+
                         embed = disnake.Embed(title="📸 ส่งภาพหลักฐานสำเร็จ!", color=0x2ECC71)
-                        embed.description = f"**รอบ:** {round_name}\nคุณได้ส่งรูปภาพผลการแข่งให้กรรมการเรียบร้อยแล้ว"
+                        embed.description = f"**รอบ:** {round_name}\nคุณได้ส่งรูปภาพผลการแข่งและอันดับที่ {placement} ให้กรรมการเรียบร้อยแล้ว"
                         embed.set_image(url=evidence_uri)
-                        embed.set_footer(text="กรรมการจะทำการตรวจสอบและอัปเดตคะแนนให้คุณครับ")
+                        embed.set_footer(text="ระบบได้ประมวลผล OCR และส่งรายงานไปยังกรรมการแล้วครับ")
                         await inter.edit_original_response(embed=embed)
                         
                         evidence_channel = disnake.utils.get(inter.guild.channels, name="📸-ส่งผลการแข่ง")
                         if evidence_channel:
-                            admin_embed = disnake.Embed(title="🚨 [NEW EVIDENCE] มีภาพผลการแข่งใหม่รอตรวจ!", color=0xF1C40F)
+                            admin_embed = disnake.Embed(title="🚨 [NEW EVIDENCE] มีภาพผลการแข่งใหม่และผลสแกน OCR รอตรวจ!", color=0xF1C40F)
                             admin_embed.add_field(name="ผู้เล่น", value=inter.author.mention, inline=True)
                             admin_embed.add_field(name="รอบ", value=round_name, inline=True)
+                            admin_embed.add_field(name="อันดับที่รายงาน", value=str(placement), inline=True)
                             admin_embed.set_image(url=evidence_uri)
                             await evidence_channel.send(embed=admin_embed)
                     else:
                         data = await resp.json()
                         message = get_localized_error(data)
                         await inter.edit_original_response(content=f"❌ **ส่งผลไม่สำเร็จ:** {message}")
-        except Exception:
+        except Exception as e:
+            print(f"Error in submit_evidence: {e}")
             await inter.edit_original_response(content="⚠️ Error connecting to backend.")
-
 def setup(bot):
     bot.add_cog(PlayerCog(bot))

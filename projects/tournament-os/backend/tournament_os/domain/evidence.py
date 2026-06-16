@@ -9,6 +9,10 @@ def validate_evidence_uri(evidence_uri: str | None) -> str | None:
         return None
 
     parsed = urlparse(evidence_uri)
+    # Allow relative paths and Windows absolute paths (single-character schemes)
+    if not parsed.scheme or len(parsed.scheme) == 1:
+        return evidence_uri
+
     if parsed.scheme not in {"http", "https"}:
         raise DomainError("evidence_uri_invalid", "Evidence URI must use http or https.")
 

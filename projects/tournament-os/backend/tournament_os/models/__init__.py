@@ -10,6 +10,7 @@ from .operations import (
     PlayerStatusSnapshot, PublicTournamentSummary, DiscordMessageJob
 )
 from .overlay import OverlayConfig
+from .evidence import Attachment, OcrSuggestion
 
 __all__ = [
     "Base", "Tournament", "RuleSet", "ScoreFormulaModel",
@@ -18,5 +19,5 @@ __all__ = [
     "Round", "CheckInSession", "CheckIn", "Score", "Dispute",
     "AuditLog", "EventOutbox", "TournamentDashboardSummary", "LeaderboardSnapshot",
     "PlayerStatusSnapshot", "PublicTournamentSummary", "DiscordMessageJob",
-    "OverlayConfig"
+    "OverlayConfig", "Attachment", "OcrSuggestion"
 ]

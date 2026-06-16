@@ -15,7 +15,7 @@ from os import getenv
 class Settings:
     database_url: str = os.getenv(
         "TOURNAMENT_OS_DATABASE_URL",
-        "postgresql+psycopg://tournament_os:tournament_os@localhost:5433/tournament_os",
+        "sqlite:///./tournament_os_demo.db",
     )
     app_name: str = "Tournament OS"
     app_version: str = "0.1.0"
